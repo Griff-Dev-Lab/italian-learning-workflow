@@ -1,0 +1,40 @@
+themes:
+  - id: food
+    label: Food & Eating
+    description: Vocabulary for ordering food, describing meals, ingredients, and eating habits.
+
+  - id: travel
+    label: Travel
+    description: Getting around, transport, directions, booking accommodation, and airports.
+
+  - id: family
+    label: Family
+    description: Family members, relationships, describing people, and home life.
+
+  - id: weather
+    label: Weather
+    description: Describing the weather, seasons, temperature, and outdoor conditions.
+
+  - id: shopping
+    label: Shopping
+    description: Buying clothes, groceries, asking prices, and shopping in markets or stores.
+
+  - id: health
+    label: Health & Body
+    description: Parts of the body, common ailments, visiting a doctor, and basic health vocabulary.
+
+  - id: home
+    label: Home & House
+    description: Rooms, furniture, household objects, and daily routines at home.
+
+  - id: work
+    label: Work & Jobs
+    description: Common jobs, workplace vocabulary, daily work routines, and simple job descriptions.
+
+  - id: hobbies
+    label: Hobbies & Free Time
+    description: Sports, leisure activities, music, reading, and talking about what you enjoy doing.
+
+  - id: transport
+    label: Transport & Getting Around
+    description: Buses, trains, taxis, driving, asking for directions, and buying tickets.

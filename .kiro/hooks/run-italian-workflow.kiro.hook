@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Run Italian Learning Workflow",
+  "description": "Manually trigger the weekly Italian learning workflow. Prompts you to pick a theme and generates flashcards, reading passage, and quiz into a new weekly_artifacts folder.",
+  "version": "1",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "The user wants to run the Italian learning workflow. \n\n1. Ask the user which theme they want to use this week. Show them the available themes by running: python3 run.py --list-themes (cwd: /Users/andrewgriffith/Documents/Kiro Dev/italian-learning-workflow)\n2. Once they pick a theme, run the workflow: python3 run.py --theme {chosen_theme} (cwd: /Users/andrewgriffith/Documents/Kiro Dev/italian-learning-workflow)\n3. When complete, tell the user where their files were saved and remind them to open quiz.html in their browser and import flashcards.csv into Anki."
+  }
+}

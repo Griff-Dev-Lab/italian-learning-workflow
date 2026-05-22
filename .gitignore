@@ -1,0 +1,6 @@
+weekly_artifacts/
+.env
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store
