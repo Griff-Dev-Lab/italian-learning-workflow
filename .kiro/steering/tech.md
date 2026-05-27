@@ -40,20 +40,20 @@ The tool produces two CSV files per run — one for Basic note type, one for Clo
 
 ```bash
 # Generate flashcards for a verb
-python run.py --verb mangiare
+python3 run.py --verb mangiare
 
 # Generate flashcards + conjugation table
-python run.py --verb mangiare --table
+python3 run.py --verb mangiare --table
 
 # Custom output directory
-python run.py --verb mangiare --output ./my_output
+python3 run.py --verb mangiare --output ./my_output
 
 # First-time setup
 pip install -r requirements.txt
 ```
 
 ## No Build Step
-There is no compilation, bundling, or build process. The project runs directly with `python run.py`.
+There is no compilation, bundling, or build process. The project runs directly with `python3 run.py`.
 
 ## No Test Framework
 There is currently no automated test suite in the project.

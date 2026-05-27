@@ -46,12 +46,20 @@ class FlashcardBuilder:
             BasicCardRow(f"{infinitive} (noi, present)",     data.present_noi),
             BasicCardRow(f"{infinitive} (voi, present)",     data.present_voi),
             BasicCardRow(f"{infinitive} (loro, present)",    data.present_loro),
-            # Past tense — io and tu
+            # Past tense — all 6 forms
             BasicCardRow(f"{infinitive} (io, past)",         data.past_io),
             BasicCardRow(f"{infinitive} (tu, past)",         data.past_tu),
-            # Future tense — io and tu
+            BasicCardRow(f"{infinitive} (lui/lei, past)",    data.past_lui_lei),
+            BasicCardRow(f"{infinitive} (noi, past)",        data.past_noi),
+            BasicCardRow(f"{infinitive} (voi, past)",        data.past_voi),
+            BasicCardRow(f"{infinitive} (loro, past)",       data.past_loro),
+            # Future tense — all 6 forms
             BasicCardRow(f"{infinitive} (io, future)",       data.future_io),
             BasicCardRow(f"{infinitive} (tu, future)",       data.future_tu),
+            BasicCardRow(f"{infinitive} (lui/lei, future)",  data.future_lui_lei),
+            BasicCardRow(f"{infinitive} (noi, future)",      data.future_noi),
+            BasicCardRow(f"{infinitive} (voi, future)",      data.future_voi),
+            BasicCardRow(f"{infinitive} (loro, future)",     data.future_loro),
         ]
         return rows
 
@@ -73,19 +81,17 @@ class FlashcardBuilder:
         return rows
 
     def to_basic_csv(self, rows: List[BasicCardRow]) -> str:
-        """Return RFC 4180-compliant UTF-8 CSV for Basic note type."""
+        """Return RFC 4180-compliant UTF-8 CSV for Basic note type (no header row)."""
         output = io.StringIO()
         writer = csv.writer(output, quoting=csv.QUOTE_MINIMAL, lineterminator="\n")
-        writer.writerow(BASIC_CSV_HEADER)
         for row in rows:
             writer.writerow([row.front, row.back])
         return output.getvalue()
 
     def to_cloze_csv(self, rows: List[ClozeCardRow]) -> str:
-        """Return RFC 4180-compliant UTF-8 CSV for Cloze note type."""
+        """Return RFC 4180-compliant UTF-8 CSV for Cloze note type (no header row)."""
         output = io.StringIO()
         writer = csv.writer(output, quoting=csv.QUOTE_MINIMAL, lineterminator="\n")
-        writer.writerow(CLOZE_CSV_HEADER)
         for row in rows:
             writer.writerow([row.text, row.extra])
         return output.getvalue()

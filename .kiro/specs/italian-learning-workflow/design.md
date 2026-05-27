@@ -117,7 +117,7 @@ All other verbs default to `avere` (`ho`/`hai`).
 
 **Fallback methods** — if mlconjug3 extraction fails for any tense, pattern-based fallbacks are used (`_fallback_present_forms`, `_fallback_past_forms`, `_fallback_future_forms`). These cover common verb endings (`-are`, `-ere`, `-ire`) and hardcoded forms for `mangiare`, `dormire`, `andare`.
 
-**Cloze sentence templates** — 8 fixed templates, one per person/tense slot:
+**Cloze sentence templates** — 18 fixed templates, one per person/tense slot:
 
 | # | Template | Person | Tense |
 |---|---|---|---|
@@ -125,10 +125,20 @@ All other verbs default to `avere` (`ho`/`hai`).
 | 2 | `({inf}) Tu {verb} spesso?` | tu | present |
 | 3 | `({inf}) Lui {verb} sempre.` | lui/lei | present |
 | 4 | `({inf}) Noi {verb} insieme.` | noi | present |
-| 5 | `({inf}) Ieri io {verb}.` | io | past |
-| 6 | `({inf}) Tu {verb} ieri?` | tu | past |
-| 7 | `({inf}) Domani io {verb}.` | io | future |
-| 8 | `({inf}) Tu {verb} domani?` | tu | future |
+| 5 | `({inf}) Voi {verb} domani?` | voi | present |
+| 6 | `({inf}) Loro {verb} sempre.` | loro | present |
+| 7 | `({inf}) Ieri io {verb}.` | io | past |
+| 8 | `({inf}) Tu {verb} ieri?` | tu | past |
+| 9 | `({inf}) Lui {verb} ieri.` | lui/lei | past |
+| 10 | `({inf}) Noi {verb} ieri.` | noi | past |
+| 11 | `({inf}) Voi {verb} ieri?` | voi | past |
+| 12 | `({inf}) Loro {verb} ieri.` | loro | past |
+| 13 | `({inf}) Domani io {verb}.` | io | future |
+| 14 | `({inf}) Tu {verb} domani?` | tu | future |
+| 15 | `({inf}) Lui {verb} domani.` | lui/lei | future |
+| 16 | `({inf}) Noi {verb} domani.` | noi | future |
+| 17 | `({inf}) Voi {verb} domani?` | voi | future |
+| 18 | `({inf}) Loro {verb} domani.` | loro | future |
 
 `{verb}` is replaced with `{{c1::conjugated_form}}` for Anki cloze syntax.
 
@@ -138,10 +148,10 @@ All other verbs default to `avere` (`ho`/`hai`).
 
 **Responsibility:** Transform `ConjugationData` into CSV-ready row objects.
 
-**`build_basic(data) -> list[BasicCardRow]`** — produces exactly 10 rows:
+**`build_basic(data) -> list[BasicCardRow]`** — produces exactly 18 rows:
 - 6 present tense (io, tu, lui/lei, noi, voi, loro)
-- 2 past tense (io, tu)
-- 2 future tense (io, tu)
+- 6 past tense (io, tu, lui/lei, noi, voi, loro)
+- 6 future tense (io, tu, lui/lei, noi, voi, loro)
 
 Front format: `mangiare (io, present)` | Back: `mangio`
 
@@ -222,8 +232,16 @@ class ConjugationData:
     present_loro: str      # "mangiano"
     past_io: str           # "ho mangiato"
     past_tu: str           # "hai mangiato"
+    past_lui_lei: str      # "ha mangiato"
+    past_noi: str          # "abbiamo mangiato"
+    past_voi: str          # "avete mangiato"
+    past_loro: str         # "hanno mangiato"
     future_io: str         # "mangerò"
     future_tu: str         # "mangerai"
+    future_lui_lei: str    # "mangerà"
+    future_noi: str        # "mangeremo"
+    future_voi: str        # "mangerete"
+    future_loro: str       # "mangeranno"
     cloze_sentences: List[dict]
     # Each dict: {"sentence": "...", "answer": "...", "label": "..."}
 ```
@@ -406,7 +424,7 @@ Cloze sentences must always include the subject pronoun so only one conjugated f
 ### Property 4: Correct card counts
 **Validates: Requirements 1.2, 1.3**
 
-Basic CSV must always contain exactly 10 rows (6 present + 2 past + 2 future). Cloze CSV must always contain exactly 8 rows (4 present + 2 past + 2 future).
+Basic CSV must always contain exactly 18 rows (6 present + 6 past + 6 future). Cloze CSV must always contain exactly 18 rows (6 present + 6 past + 6 future).
 
 ### Property 5: No folder overwrites
 **Validates: Requirements 6.2**

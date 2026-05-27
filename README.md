@@ -6,18 +6,18 @@ An Anki flashcard generator focused on Italian verb conjugation for A1–A2 lear
 
 For each verb (e.g. `mangiare`), the tool creates:
 
-- **Basic flashcards** (`flashcards_basic.csv`) — 10 cards drilling individual conjugated forms
+- **Basic flashcards** (`flashcards_basic.csv`) — 18 cards drilling individual conjugated forms
   - All 6 present tense forms (io, tu, lui/lei, noi, voi, loro)
-  - Common past tense forms (io, tu) using passato prossimo
-  - Common future tense forms (io, tu) using futuro semplice
+  - All 6 past tense forms (passato prossimo)
+  - All 6 future tense forms (futuro semplice)
 
-- **Cloze flashcards** (`flashcards_cloze.csv`) — 8 cards with verb used in context
+- **Cloze flashcards** (`flashcards_cloze.csv`) — 18 cards with verb used in context
   - Infinitive shown in parentheses: `(mangiare) Ogni giorno io _____`
   - Subject pronouns ensure only one correct answer
-  - Covers present, past, and future tenses
+  - All 6 persons for present, past, and future tenses
 
 - **Conjugation table** (`conjugation_table.html`) — optional visual reference
-  - Clean, printable HTML showing all forms
+  - Clean, printable HTML showing all forms for all 6 persons
   - Generated with `--table` flag
 
 ## Why 100% Accurate?
@@ -49,19 +49,19 @@ That's it — no API keys, no Ollama, no extra setup.
 
 ```bash
 # Generate flashcards for a verb
-python run.py --verb mangiare
+python3 run.py --verb mangiare
 
 # Generate flashcards + conjugation reference table
-python run.py --verb mangiare --table
+python3 run.py --verb mangiare --table
 
 # Re-generate cards for an existing verb
-python run.py --verb mangiare --force
+python3 run.py --verb mangiare --force
 
 # Custom output directory
-python run.py --verb mangiare --output ./my_output
+python3 run.py --verb mangiare --output ./my_output
 
 # Check which verbs have been processed
-python run.py --list-verbs
+python3 run.py --list-verbs
 ```
 
 ## Output
@@ -74,10 +74,60 @@ Each run creates a folder like `verb_artifacts/mangiare/` containing:
 
 ## Anki Import
 
-1. **Download Anki desktop** from [apps.ankiweb.net](https://apps.ankiweb.net)
-2. **Import Basic cards**: File → Import → select `flashcards_basic.csv` → set note type to **Basic**
-3. **Import Cloze cards**: File → Import → select `flashcards_cloze.csv` → set note type to **Cloze**
-4. **Sync to AnkiWeb** to access on mobile
+### Step 1: Download Anki
+
+Go to [apps.ankiweb.net](https://apps.ankiweb.net) and download **Anki Desktop** for your platform. Install it like any other application.
+
+### Step 2: Create a Deck
+
+1. Launch Anki
+2. Click **"Create Deck"** button
+3. Name it **"Italian Verbs"** (or your preferred name)
+4. Click **OK**
+
+### Step 3: Import Basic Flashcards
+
+1. Go to **File** → **Import**
+2. Navigate to your verb folder (e.g. `verb_artifacts/mangiare/`)
+3. Select **`flashcards_basic.csv`**
+4. In the import dialog:
+   - **Note Type**: Select **"Basic"** from the dropdown
+   - **Deck**: Select **"Italian Verbs"**
+   - Click **Import**
+5. You should see: "Imported 18 notes."
+
+### Step 4: Import Cloze Flashcards
+
+1. Go to **File** → **Import** again
+2. Select **`flashcards_cloze.csv`** from the same folder
+3. In the import dialog:
+   - **Note Type**: Select **"Cloze"** from the dropdown
+   - **Deck**: Select **"Italian Verbs"**
+   - **Allow HTML in fields**: Check ✓ (ensures `{{c1::}}` cloze syntax works)
+   - Click **Import**
+4. You should see: "Imported 18 notes."
+
+### Step 5: Review Your Cards
+
+1. Click on the **"Italian Verbs"** deck
+2. Click **"Study Now"** to start reviewing
+3. You'll see:
+   - **Basic cards**: Front shows `mangiare (io, present)` → Back shows `mangio`
+   - **Cloze cards**: Shows `(mangiare) Ogni giorno io _____` with the answer hidden until you reveal it
+
+### Step 6: Sync to AnkiWeb (Optional)
+
+To access your cards on mobile (AnkiDroid, AnkiWeb):
+
+1. Create a free account at [ankiweb.net](https://ankiweb.net)
+2. In Anki Desktop: **Anki** → **Preferences** → **Network**
+3. Enter your AnkiWeb credentials
+4. Click the **Sync** button (top right) to upload your deck
+5. Install **AnkiDroid** on your phone and log in with the same credentials
+
+---
+
+**That's it!** You now have 36 flashcards (18 basic + 18 cloze) for each verb ready to study. Generate more verbs anytime with `python3 run.py --verb [verb] --table`.
 
 ## Project Structure
 

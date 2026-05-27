@@ -29,13 +29,21 @@ class ConjugationData:
     present_voi: str
     present_loro: str
 
-    # Past tense (passato prossimo) — most common forms
+    # Past tense (passato prossimo) — all 6 forms
     past_io: str
     past_tu: str
+    past_lui_lei: str
+    past_noi: str
+    past_voi: str
+    past_loro: str
 
-    # Future tense (futuro semplice) — most common forms
+    # Future tense (futuro semplice) — all 6 forms
     future_io: str
     future_tu: str
+    future_lui_lei: str
+    future_noi: str
+    future_voi: str
+    future_loro: str
 
     # Example sentences for cloze cards — one per conjugated form
     # Each sentence must use the specific form and make it the only correct answer
@@ -93,8 +101,16 @@ class VerbConjugator:
                 present_loro=present_forms["loro"],
                 past_io=past_forms["io"],
                 past_tu=past_forms["tu"],
+                past_lui_lei=past_forms["lui_lei"],
+                past_noi=past_forms["noi"],
+                past_voi=past_forms["voi"],
+                past_loro=past_forms["loro"],
                 future_io=future_forms["io"],
                 future_tu=future_forms["tu"],
+                future_lui_lei=future_forms["lui_lei"],
+                future_noi=future_forms["noi"],
+                future_voi=future_forms["voi"],
+                future_loro=future_forms["loro"],
                 cloze_sentences=cloze_sentences,
             )
             
@@ -120,42 +136,42 @@ class VerbConjugator:
             return self._fallback_present_forms(infinitive)
 
     def _extract_past_forms(self, conjugation_dict: dict, infinitive: str) -> dict:
-        """Extract past tense forms from mlconjug3 output."""
+        """Extract past tense forms (passato prossimo) from mlconjug3 output — all 6 persons."""
         try:
             # Get the past participle from passato prossimo
             past_participle_forms = conjugation_dict.get('Indicativo', {}).get('Indicativo passato prossimo', {})
             past_participle = past_participle_forms.get('1s', '')  # All persons have same participle
             
             if past_participle:
-                # Most verbs use 'avere' as auxiliary
-                # Special cases that use 'essere' would need a lookup table
-                auxiliary = self._get_auxiliary_verb(infinitive)
+                # Get auxiliary verb forms for all 6 persons
+                auxiliary = self._get_auxiliary_verb_all_forms(infinitive)
                 
-                # For essere verbs, past participle agrees with subject
-                if auxiliary[0] == "sono":  # essere auxiliary
-                    # Use masculine singular forms for simplicity (andato, not andata)
-                    return {
-                        "io": f"{auxiliary[0]} {past_participle}",
-                        "tu": f"{auxiliary[1]} {past_participle}",
-                    }
-                else:  # avere auxiliary
-                    return {
-                        "io": f"{auxiliary[0]} {past_participle}",
-                        "tu": f"{auxiliary[1]} {past_participle}",
-                    }
+                # Combine auxiliary + past participle for all 6 forms
+                return {
+                    "io": f"{auxiliary['io']} {past_participle}",
+                    "tu": f"{auxiliary['tu']} {past_participle}",
+                    "lui_lei": f"{auxiliary['lui_lei']} {past_participle}",
+                    "noi": f"{auxiliary['noi']} {past_participle}",
+                    "voi": f"{auxiliary['voi']} {past_participle}",
+                    "loro": f"{auxiliary['loro']} {past_participle}",
+                }
             else:
                 return self._fallback_past_forms(infinitive)
         except Exception:
             return self._fallback_past_forms(infinitive)
 
     def _extract_future_forms(self, conjugation_dict: dict, infinitive: str) -> dict:
-        """Extract future tense forms from mlconjug3 output."""
+        """Extract future tense forms (futuro semplice) from mlconjug3 output — all 6 persons."""
         try:
             future_forms = conjugation_dict.get('Indicativo', {}).get('Indicativo futuro semplice', {})
             
             return {
                 "io": future_forms.get('1s', ''),
                 "tu": future_forms.get('2s', ''),
+                "lui_lei": future_forms.get('3s', ''),
+                "noi": future_forms.get('1p', ''),
+                "voi": future_forms.get('2p', ''),
+                "loro": future_forms.get('3p', ''),
             }
         except Exception:
             return self._fallback_future_forms(infinitive)
@@ -169,6 +185,30 @@ class VerbConjugator:
             return ("sono", "sei")
         else:
             return ("ho", "hai")
+
+    def _get_auxiliary_verb_all_forms(self, infinitive: str) -> dict:
+        """Return all 6 auxiliary verb forms for passato prossimo.
+        
+        Most verbs use 'avere', but some movement/state verbs use 'essere'.
+        """
+        if infinitive in ESSERE_VERBS:
+            return {
+                "io": "sono",
+                "tu": "sei",
+                "lui_lei": "è",
+                "noi": "siamo",
+                "voi": "siete",
+                "loro": "sono"
+            }
+        else:
+            return {
+                "io": "ho",
+                "tu": "hai",
+                "lui_lei": "ha",
+                "noi": "abbiamo",
+                "voi": "avete",
+                "loro": "hanno"
+            }
 
     def _fallback_present_forms(self, infinitive: str) -> dict:
         """Fallback present forms for common verbs when mlconjug3 extraction fails."""
@@ -208,15 +248,24 @@ class VerbConjugator:
                 return {"io": "", "tu": "", "lui_lei": "", "noi": "", "voi": "", "loro": ""}
 
     def _fallback_past_forms(self, infinitive: str) -> dict:
-        """Fallback past forms using standard patterns."""
-        auxiliary = self._get_auxiliary_verb(infinitive)
+        """Fallback past forms using standard patterns — all 6 persons."""
+        auxiliary = self._get_auxiliary_verb_all_forms(infinitive)
         
         if infinitive == "dormire":
-            return {"io": "ho dormito", "tu": "hai dormito"}
+            return {
+                "io": "ho dormito", "tu": "hai dormito", "lui_lei": "ha dormito",
+                "noi": "abbiamo dormito", "voi": "avete dormito", "loro": "hanno dormito"
+            }
         elif infinitive == "mangiare":
-            return {"io": "ho mangiato", "tu": "hai mangiato"}
+            return {
+                "io": "ho mangiato", "tu": "hai mangiato", "lui_lei": "ha mangiato",
+                "noi": "abbiamo mangiato", "voi": "avete mangiato", "loro": "hanno mangiato"
+            }
         elif infinitive == "andare":
-            return {"io": "sono andato", "tu": "sei andato"}
+            return {
+                "io": "sono andato", "tu": "sei andato", "lui_lei": "è andato",
+                "noi": "siamo andati", "voi": "siete andati", "loro": "sono andati"
+            }
         else:
             # Generate past participle based on verb ending
             if infinitive.endswith("are"):
@@ -229,16 +278,26 @@ class VerbConjugator:
                 past_participle = infinitive + "to"  # fallback
             
             return {
-                "io": f"{auxiliary[0]} {past_participle}",
-                "tu": f"{auxiliary[1]} {past_participle}"
+                "io": f"{auxiliary['io']} {past_participle}",
+                "tu": f"{auxiliary['tu']} {past_participle}",
+                "lui_lei": f"{auxiliary['lui_lei']} {past_participle}",
+                "noi": f"{auxiliary['noi']} {past_participle}",
+                "voi": f"{auxiliary['voi']} {past_participle}",
+                "loro": f"{auxiliary['loro']} {past_participle}"
             }
 
     def _fallback_future_forms(self, infinitive: str) -> dict:
-        """Fallback future forms using standard patterns."""
+        """Fallback future forms using standard patterns — all 6 persons."""
         if infinitive == "dormire":
-            return {"io": "dormirò", "tu": "dormirai"}
+            return {
+                "io": "dormirò", "tu": "dormirai", "lui_lei": "dormirà",
+                "noi": "dormiremo", "voi": "dormirete", "loro": "dormiranno"
+            }
         elif infinitive == "mangiare":
-            return {"io": "mangerò", "tu": "mangerai"}
+            return {
+                "io": "mangerò", "tu": "mangerai", "lui_lei": "mangerà",
+                "noi": "mangeremo", "voi": "mangerete", "loro": "mangeranno"
+            }
         else:
             # Standard future formation
             if infinitive.endswith("are"):
@@ -248,7 +307,11 @@ class VerbConjugator:
             
             return {
                 "io": f"{future_root}ò",
-                "tu": f"{future_root}ai"
+                "tu": f"{future_root}ai",
+                "lui_lei": f"{future_root}à",
+                "noi": f"{future_root}emo",
+                "voi": f"{future_root}ete",
+                "loro": f"{future_root}anno"
             }
 
     def _generate_cloze_sentences(self, infinitive: str, present: dict, past: dict, future: dict) -> list:
@@ -256,7 +319,7 @@ class VerbConjugator:
         
         # Template patterns for different verb types and contexts
         templates = [
-            # Present tense templates (4 sentences)
+            # Present tense templates (6 sentences)
             {
                 "template": f"({infinitive}) Ogni giorno io {{verb}}.",
                 "person": "io", "tense": "present",
@@ -277,8 +340,18 @@ class VerbConjugator:
                 "person": "noi", "tense": "present",
                 "label": "noi, present"
             },
+            {
+                "template": f"({infinitive}) Voi {{verb}} domani?",
+                "person": "voi", "tense": "present",
+                "label": "voi, present"
+            },
+            {
+                "template": f"({infinitive}) Loro {{verb}} sempre.",
+                "person": "loro", "tense": "present",
+                "label": "loro, present"
+            },
             
-            # Past tense templates (2 sentences)
+            # Past tense templates (6 sentences)
             {
                 "template": f"({infinitive}) Ieri io {{verb}}.",
                 "person": "io", "tense": "past",
@@ -289,8 +362,28 @@ class VerbConjugator:
                 "person": "tu", "tense": "past",
                 "label": "tu, past"
             },
+            {
+                "template": f"({infinitive}) Lui {{verb}} ieri.",
+                "person": "lui_lei", "tense": "past",
+                "label": "lui/lei, past"
+            },
+            {
+                "template": f"({infinitive}) Noi {{verb}} ieri.",
+                "person": "noi", "tense": "past",
+                "label": "noi, past"
+            },
+            {
+                "template": f"({infinitive}) Voi {{verb}} ieri?",
+                "person": "voi", "tense": "past",
+                "label": "voi, past"
+            },
+            {
+                "template": f"({infinitive}) Loro {{verb}} ieri.",
+                "person": "loro", "tense": "past",
+                "label": "loro, past"
+            },
             
-            # Future tense templates (2 sentences)
+            # Future tense templates (6 sentences)
             {
                 "template": f"({infinitive}) Domani io {{verb}}.",
                 "person": "io", "tense": "future",
@@ -300,6 +393,26 @@ class VerbConjugator:
                 "template": f"({infinitive}) Tu {{verb}} domani?",
                 "person": "tu", "tense": "future",
                 "label": "tu, future"
+            },
+            {
+                "template": f"({infinitive}) Lui {{verb}} domani.",
+                "person": "lui_lei", "tense": "future",
+                "label": "lui/lei, future"
+            },
+            {
+                "template": f"({infinitive}) Noi {{verb}} domani.",
+                "person": "noi", "tense": "future",
+                "label": "noi, future"
+            },
+            {
+                "template": f"({infinitive}) Voi {{verb}} domani?",
+                "person": "voi", "tense": "future",
+                "label": "voi, future"
+            },
+            {
+                "template": f"({infinitive}) Loro {{verb}} domani.",
+                "person": "loro", "tense": "future",
+                "label": "loro, future"
             }
         ]
         

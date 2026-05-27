@@ -167,6 +167,22 @@ class ConjugationTableBuilder:
                         <td class="person">tu</td>
                         <td class="conjugation">{data.past_tu}</td>
                     </tr>
+                    <tr>
+                        <td class="person">lui/lei</td>
+                        <td class="conjugation">{data.past_lui_lei}</td>
+                    </tr>
+                    <tr>
+                        <td class="person">noi</td>
+                        <td class="conjugation">{data.past_noi}</td>
+                    </tr>
+                    <tr>
+                        <td class="person">voi</td>
+                        <td class="conjugation">{data.past_voi}</td>
+                    </tr>
+                    <tr>
+                        <td class="person">loro</td>
+                        <td class="conjugation">{data.past_loro}</td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -184,6 +200,22 @@ class ConjugationTableBuilder:
                     <tr>
                         <td class="person">tu</td>
                         <td class="conjugation">{data.future_tu}</td>
+                    </tr>
+                    <tr>
+                        <td class="person">lui/lei</td>
+                        <td class="conjugation">{data.future_lui_lei}</td>
+                    </tr>
+                    <tr>
+                        <td class="person">noi</td>
+                        <td class="conjugation">{data.future_noi}</td>
+                    </tr>
+                    <tr>
+                        <td class="person">voi</td>
+                        <td class="conjugation">{data.future_voi}</td>
+                    </tr>
+                    <tr>
+                        <td class="person">loro</td>
+                        <td class="conjugation">{data.future_loro}</td>
                     </tr>
                 </tbody>
             </table>

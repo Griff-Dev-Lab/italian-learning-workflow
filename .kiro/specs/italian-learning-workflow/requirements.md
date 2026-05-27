@@ -28,8 +28,8 @@ The Italian Learning Workflow is a CLI tool for A1–A2 Italian learners that ge
 #### Acceptance Criteria
 
 1. WHEN the workflow is executed with a verb infinitive, THE Workflow SHALL generate two CSV files: `flashcards_basic.csv` and `flashcards_cloze.csv`.
-2. THE `flashcards_basic.csv` SHALL contain exactly 10 rows: 6 present tense forms (io, tu, lui/lei, noi, voi, loro), 2 passato prossimo forms (io, tu), and 2 futuro semplice forms (io, tu).
-3. THE `flashcards_cloze.csv` SHALL contain exactly 8 rows covering a spread of persons and tenses.
+2. THE `flashcards_basic.csv` SHALL contain exactly 18 rows: 6 present tense forms (io, tu, lui/lei, noi, voi, loro), 6 passato prossimo forms (io, tu, lui/lei, noi, voi, loro), and 6 futuro semplice forms (io, tu, lui/lei, noi, voi, loro).
+3. THE `flashcards_cloze.csv` SHALL contain exactly 18 rows covering all 6 persons across present, past, and future tenses.
 4. ALL conjugated forms SHALL be sourced from the mlconjug3 library — no LLM or external API calls.
 5. THE Workflow SHALL work for any valid Italian verb infinitive including irregular verbs (essere, avere, andare, venire, etc.).
 6. THE Workflow SHALL correctly select the auxiliary verb (avere or essere) for passato prossimo forms.

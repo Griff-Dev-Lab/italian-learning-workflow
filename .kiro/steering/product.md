@@ -8,15 +8,15 @@ A single CLI run for one verb produces two types of cards:
 
 **Basic cards** — one conjugated form per card, drills recall of a specific form:
 - All 6 present tense forms (io, tu, lui/lei, noi, voi, loro) — one card each
-- Most common past tense forms (io, tu) using passato prossimo
-- Most common future tense forms (io, tu) using futuro semplice
-- ~10 cards per verb
+- All 6 past tense forms (passato prossimo) — one card each
+- All 6 future tense forms (futuro semplice) — one card each
+- 18 cards per verb
 
 **Cloze cards** — verb used in context with clear infinitive reference:
 - Subject pronoun is always explicit so only one conjugation is correct
 - Infinitive shown in parentheses: "(mangiare) Ogni giorno io _____"
-- Covers a spread of tenses and persons
-- ~8 cards per verb
+- All 6 persons for present, past, and future tenses
+- 18 cards per verb
 
 All cards go into a single **Verbs** deck.
 
@@ -37,19 +37,19 @@ Running with `--table` generates a beautiful HTML conjugation reference table sh
 
 ```bash
 # Generate flashcards for a verb
-python run.py --verb mangiare
+python3 run.py --verb mangiare
 
 # Generate flashcards + conjugation table
-python run.py --verb mangiare --table
+python3 run.py --verb mangiare --table
 
 # Custom output directory
-python run.py --verb mangiare --output ./my_output
+python3 run.py --verb mangiare --output ./my_output
 
 # Force regeneration
-python run.py --verb mangiare --force
+python3 run.py --verb mangiare --force
 
 # List processed verbs
-python run.py --list-verbs
+python3 run.py --list-verbs
 ```
 
 ## Accuracy Guarantee
@@ -69,7 +69,7 @@ Every conjugation is verified by mlconjug3, the same library used by professiona
 - Expand beyond A1–A2 to cover intermediate and advanced learners
 - B1/B2: subjunctive mood (congiuntivo), conditional (condizionale), imperative (imperativo)
 - C1/C2: all remaining moods and tenses (trapassato, futuro anteriore, congiuntivo trapassato)
-- Level flag: `python run.py --verb mangiare --level B1`
+- Level flag: `python3 run.py --verb mangiare --level B1`
 
 ### 📚 Extended Tenses and Moods
 - Imperfetto (imperfect past) — essential for A2/B1 storytelling
