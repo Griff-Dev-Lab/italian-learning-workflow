@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.1] - 2026-06-10
+
+### Added
+- **Comprehensive documentation structure** — organized guides in `docs/` directory
+- **Anki setup guide** — step-by-step instructions for importing flashcards into Anki with troubleshooting
+- **Roadmap document** — detailed feature roadmap for v1.3–v2.0 with timelines
+- **Verb learning list** — curated top 30 essential Italian verbs organized by learning tier with CLI commands
+
+### Changed
+- **Documentation reorganization** — moved user-facing guides to `docs/` directory for better discoverability
+- **README simplified** — links to comprehensive guides instead of embedding full content
+
+## [1.2.0] - 2026-06-09
+
+### Changed — Complete Conjugation Coverage
+- **Expanded to all 6 persons** — now generates cards for io, tu, lui/lei, noi, voi, loro (previously only io and tu)
+- **18 Basic cards per verb** — all 6 persons for present, past (passato prossimo), and future (futuro semplice) tenses
+- **18 Cloze cards per verb** — all 6 persons with contextual sentences and infinitive reference
+- **Enhanced conjugation table** — HTML table now displays all 6 forms for each tense
+
+### Added
+- **Comprehensive Anki setup guide** — included in README with 6-step import process and troubleshooting tips
+
+### Fixed
+- **Auxiliary verb handling** — correctly determines avere vs essere for all 6 persons in past tense
+- **Cloze sentence generation** — all 18 sentences now include proper infinitive context and subject pronouns
+
 ## [1.1.0] - 2026-05-27
 
 ### Changed — Major Accuracy Overhaul
