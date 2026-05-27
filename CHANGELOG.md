@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-05-27
+
+### Changed — Major Accuracy Overhaul
+- **Removed all LLM dependencies** — conjugations now powered entirely by mlconjug3
+- **Replaced passage builder with conjugation table** — 100% accurate HTML reference tables via `--table` flag
+- **Template-based cloze sentences** — deterministic, grammatically perfect sentence generation
+- **Cloze cards now show infinitive context** — format: `(mangiare) Ogni giorno io _____`
+- **Correct auxiliary verbs** — avere vs essere handled accurately for all verbs
+- **Simplified CLI** — removed `--passage` flag, added `--table` flag
+
+### Removed
+- `src/passage_builder.py` — LLM-generated passages were inaccurate, removed entirely
+- `src/llm_client.py` — no LLM dependencies remain in the project
+- `.env` / `.env.example` — no API keys needed
+- LLM provider config from `config.yaml`
+- `openai`, `python-dotenv` from `requirements.txt`
+
+### Added
+- `src/conjugation_table_builder.py` — generates beautiful HTML conjugation reference tables
+- `--table` CLI flag — optional conjugation table output
+
+### Fixed
+- Present tense forms now always use simple present (dormo, not sono addormentato)
+- Past tense auxiliary verbs now correct (ho dormito, not sono dormito)
+- Future tense forms now use futuro semplice (dormirò, not sarò dormito)
+- Cloze sentences now 100% Italian with no mixed languages
+
 ## [1.0.0] - 2026-05-27
 
 ### Added
@@ -19,28 +46,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Structured prompt engineering** - Template-based sentence generation for grammatical accuracy
 - **CLI interface** - Simple `python run.py --verb [infinitive]` command
 - **Anki-ready output** - RFC 4180-compliant CSV files for direct import
-
-### Technical Features
-- **Local-first architecture** - Runs entirely offline with Ollama
-- **Modular design** - Single-responsibility modules with custom exception handling
-- **Type hints and documentation** - Full type annotations and docstrings
-- **Configuration management** - YAML-based config with environment variable support
-- **Atomic file operations** - Safe artifact writing with cleanup on failure
-
-### Output Structure
-```
-verb_artifacts/
-├── verb_log.json           # Run history tracking
-└── {verb}/                 # One folder per verb
-    ├── flashcards_basic.csv    # Basic note type for Anki
-    ├── flashcards_cloze.csv    # Cloze note type for Anki  
-    └── passage.html            # Example sentences
-```
-
-### Requirements
-- macOS with 8GB+ RAM (for Ollama)
-- Python 3.10+
-- Ollama installed and running (or API key for OpenAI/Gemini)
 
 ### Dependencies
 - `openai>=1.0.0` - LLM API client

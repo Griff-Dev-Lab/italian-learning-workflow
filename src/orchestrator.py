@@ -4,10 +4,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from .llm_client import LLMClient, LLMError
 from .verb_conjugator import VerbConjugator, ConjugatorError
 from .flashcard_builder import FlashcardBuilder, FlashcardError
-from .passage_builder import PassageBuilder, PassageError
+from .conjugation_table_builder import ConjugationTableBuilder, ConjugationTableError
 from .vocab_tracker import VocabTracker
 from .storage import StorageManager
 
@@ -20,13 +19,15 @@ class WorkflowOrchestrator:
         infinitive: str,
         output_dir: str = "./verb_artifacts",
         force: bool = False,
+        table: bool = False,
     ) -> None:
-        """Generate Anki flashcard CSVs and example sentences HTML for a verb.
+        """Generate Anki flashcard CSVs and optionally conjugation table for a verb.
 
         Args:
             infinitive: The Italian verb infinitive, e.g. "mangiare".
             output_dir: Root directory for output folders.
             force: If True, skip the duplicate-verb check and run anyway.
+            table: If True, generate HTML conjugation table (LLM-free).
         """
         output_root = Path(output_dir)
         storage = StorageManager(output_root)
@@ -47,8 +48,7 @@ class WorkflowOrchestrator:
 
         # Step 2: Generate conjugation data
         print(f"[2/4] Generating conjugations for '{infinitive}'...")
-        llm = LLMClient()
-        conjugator = VerbConjugator(llm)
+        conjugator = VerbConjugator()  # No LLM needed for conjugations
         data = conjugator.conjugate(infinitive)
         print(f"      Present: {data.present_io}, {data.present_tu}, {data.present_lui_lei}, "
               f"{data.present_noi}, {data.present_voi}, {data.present_loro}")
@@ -72,16 +72,19 @@ class WorkflowOrchestrator:
         verb_folder = storage.create_verb_folder(folder_name)
         storage.write_flashcards(verb_folder, basic_csv, cloze_csv)
 
-        print("      Generating example sentences...")
-        passage_builder = PassageBuilder(llm)
-        passage_html = passage_builder.build(data)
-        storage.write_passage(verb_folder, passage_html)
+        # Optional: Generate conjugation table
+        if table:
+            print("      Generating conjugation table...")
+            table_builder = ConjugationTableBuilder()
+            table_html = table_builder.build_html_table(data)
+            storage.write_conjugation_table(verb_folder, table_html)
 
-        storage.record_run(folder_name, infinitive, passage=True)
+        storage.record_run(folder_name, infinitive, table=table)
         vocab_tracker.mark_verb(infinitive)
         vocab_tracker.save()
 
         print(f"\n✅ Done! Artifacts written to: {verb_folder}")
         print(f"   flashcards_basic.csv  — import into Anki as Basic note type")
         print(f"   flashcards_cloze.csv  — import into Anki as Cloze note type")
-        print(f"   passage.html          — example sentences, open in any browser")
+        if table:
+            print(f"   conjugation_table.html — reference table, open in any browser")

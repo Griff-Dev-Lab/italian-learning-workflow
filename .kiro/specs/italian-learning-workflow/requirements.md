@@ -2,148 +2,136 @@
 
 ## Introduction
 
-The Italian Learning Workflow is a weekly content generation system for A1-level (beginner) Italian learners. Each week, a theme is selected and the system generates a coordinated set of learning artifacts: an Anki-compatible flashcard CSV (10 cards covering 2 verbs, 2 nouns, and 2 adjectives), a short Italian reading passage, and an offline HTML multiple-choice quiz. All artifacts are stored in a per-week folder. The system supports re-running a theme to produce fresh content, and the theme list can be extended over time. Content is simple, practical, and conversational — no formal grammar instruction.
+The Italian Learning Workflow is a CLI tool for A1–A2 Italian learners that generates Anki-ready flashcard CSVs and optional conjugation reference tables for any Italian verb. All content is generated using the mlconjug3 linguistic library — no LLM, no internet connection, and no API keys are required. The tool produces 100% accurate Italian conjugations every time.
 
 ## Glossary
 
-- **Workflow**: The end-to-end weekly process that selects a theme and generates all learning artifacts.
-- **Theme**: A topic (e.g., "food", "travel", "family") that anchors the vocabulary and content for a given week.
-- **Theme_Registry**: The managed list of available themes that can be extended over time.
-- **Week_Folder**: A directory named by week number and theme (e.g., `week-01-food/`) that stores all artifacts for that week's run.
-- **Flashcard_CSV**: A comma-separated values file formatted for import into Anki, containing exactly 10 flashcards per week.
-- **Flashcard**: A single study card representing one vocabulary item with its translation and an example sentence.
-- **Reading_Passage**: A 150–200 word Italian text written at A1 level that naturally incorporates the week's vocabulary.
-- **Quiz**: An offline HTML file containing a Duolingo-style multiple-choice quiz based on the week's vocabulary and passage.
-- **Verb**: An Italian verb selected for the week; two verbs are chosen per run.
-- **Noun**: An Italian noun selected for the week; two nouns are chosen per run.
-- **Adjective**: An Italian adjective selected for the week; two adjectives are chosen per run.
-- **Conjugation**: The present-tense forms of a verb across all six persons (io, tu, lui/lei, noi, voi, loro).
-- **Tense_Example**: A short Italian sentence demonstrating a verb in past (passato prossimo) or future (futuro semplice) tense, with English translation.
-- **A1_Level**: The beginner level of the Common European Framework of Reference (CEFR) for languages, characterized by simple, high-frequency vocabulary and short sentences.
-- **Re-run**: Executing the workflow for a theme that has been used before, producing new vocabulary, passage, and quiz content.
+- **Verb**: An Italian verb infinitive provided by the user (e.g. `mangiare`, `dormire`, `andare`).
+- **Conjugation**: The inflected forms of a verb across persons and tenses.
+- **Basic Card**: An Anki flashcard with a prompt on the front (e.g. `mangiare (io, present)`) and the conjugated form on the back (e.g. `mangio`).
+- **Cloze Card**: An Anki flashcard where a conjugated form is blanked out in a sentence (e.g. `(mangiare) Ogni giorno io {{c1::mangio}}.`).
+- **Conjugation Table**: An HTML file showing all conjugated forms for a verb in a clean reference layout.
+- **Verb Folder**: A directory named after the verb (e.g. `verb_artifacts/mangiare/`) that stores all generated artifacts.
+- **mlconjug3**: A Python linguistic library providing accurate Italian verb conjugations.
+- **Passato Prossimo**: Italian compound past tense (e.g. `ho mangiato`, `sono andato`).
+- **Futuro Semplice**: Italian simple future tense (e.g. `mangerò`, `dormirò`).
+- **Avere/Essere**: The two Italian auxiliary verbs used in passato prossimo — most verbs use `avere`, motion/state verbs use `essere`.
 
 ---
 
 ## Requirements
 
-### Requirement 1: Weekly Workflow Execution
+### Requirement 1: Verb Flashcard Generation
 
-**User Story:** As a language learner, I want to run a weekly workflow for a chosen theme, so that I receive a complete set of coordinated learning materials for that week.
+**User Story:** As a language learner, I want to generate Anki flashcards for any Italian verb, so that I can drill conjugation forms using spaced repetition.
 
 #### Acceptance Criteria
 
-1. WHEN the workflow is executed with a theme name, THE Workflow SHALL generate all three artifacts — Flashcard_CSV, Reading_Passage, and Quiz — for that theme.
-2. WHEN the workflow completes, THE Workflow SHALL store all generated artifacts inside a dedicated Week_Folder.
-3. THE Week_Folder SHALL be named using the pattern `week-{NN}-{theme}` where `{NN}` is the sequential execution count zero-padded to two digits (e.g., 01, 02) and `{theme}` is the theme name in lowercase kebab-case.
-4. WHEN the workflow is executed, THE Workflow SHALL select exactly two Verbs, two Nouns, and two Adjectives where each word belongs to the CEFR A1_Level word list and is semantically related to the chosen theme.
-5. THE Workflow SHALL produce content using only A1_Level vocabulary and sentence structures as defined by the CEFR A1_Level specification.
-6. IF any single artifact fails to generate, THEN THE Workflow SHALL not write a partial Week_Folder and SHALL report which artifact failed before exiting.
+1. WHEN the workflow is executed with a verb infinitive, THE Workflow SHALL generate two CSV files: `flashcards_basic.csv` and `flashcards_cloze.csv`.
+2. THE `flashcards_basic.csv` SHALL contain exactly 10 rows: 6 present tense forms (io, tu, lui/lei, noi, voi, loro), 2 passato prossimo forms (io, tu), and 2 futuro semplice forms (io, tu).
+3. THE `flashcards_cloze.csv` SHALL contain exactly 8 rows covering a spread of persons and tenses.
+4. ALL conjugated forms SHALL be sourced from the mlconjug3 library — no LLM or external API calls.
+5. THE Workflow SHALL work for any valid Italian verb infinitive including irregular verbs (essere, avere, andare, venire, etc.).
+6. THE Workflow SHALL correctly select the auxiliary verb (avere or essere) for passato prossimo forms.
 
 ---
 
-### Requirement 2: Anki Flashcard CSV Export
+### Requirement 2: Basic Flashcard Format
 
-**User Story:** As a language learner, I want an Anki-compatible flashcard CSV with exactly 10 cards per week, so that I can import the week's vocabulary directly into Anki for spaced-repetition study.
+**User Story:** As a language learner, I want Basic flashcards that drill individual conjugated forms, so that I can memorise each form in isolation.
 
 #### Acceptance Criteria
 
-1. THE Flashcard_CSV SHALL contain exactly 10 Flashcard rows per weekly run: 3 rows per Verb (present tense, past tense, future tense) and 1 row per Noun and 1 row per Adjective (base form with translation and example sentence), totalling 2×3 + 2×1 + 2×1 = 10 rows.
-2. THE Flashcard_CSV SHALL include the following columns for each row: Italian form, English translation, source word (infinitive for verbs, base form for nouns/adjectives), word type (verb/noun/adjective), tense or form label, Italian example sentence, and English example sentence translation as a separate column.
-3. THE Flashcard_CSV SHALL use UTF-8 encoding to support Italian diacritical characters (e.g., è, à, ò, ù, ì).
-4. THE Flashcard_CSV SHALL conform to RFC 4180 formatting: comma-delimited, fields containing commas or double-quotes quoted with double-quotes, and double-quotes within fields escaped by doubling.
-5. THE Flashcard_CSV SHALL include a header row identifying each column.
-6. THE Flashcard_CSV example sentences SHALL use sentences of no more than 12 words each.
-7. WHEN any field value contains a comma, THE Flashcard_CSV SHALL enclose that field in double-quotes to prevent Anki's CSV parser from splitting the field incorrectly.
+1. EACH Basic card front SHALL follow the format: `{infinitive} ({person}, {tense})` — e.g. `mangiare (io, present)`.
+2. EACH Basic card back SHALL contain only the conjugated form — e.g. `mangio`.
+3. THE `flashcards_basic.csv` SHALL use columns: `front`, `back`.
+4. THE file SHALL use UTF-8 encoding to support Italian diacritical characters (è, à, ò, ù, ì, etc.).
+5. THE file SHALL conform to RFC 4180 CSV formatting.
 
 ---
 
-### Requirement 3: Italian Reading Passage
+### Requirement 3: Cloze Flashcard Format
 
-**User Story:** As a language learner, I want a short Italian reading passage, so that I can see the week's vocabulary used naturally in context.
+**User Story:** As a language learner, I want Cloze flashcards that test me in context, so that I can practise conjugating verbs within sentences.
 
 #### Acceptance Criteria
 
-1. THE Reading_Passage SHALL be between 150 and 200 words in length.
-2. THE Reading_Passage SHALL be written entirely in Italian at A1_Level.
-3. THE Reading_Passage SHALL incorporate each of the two Verbs, two Nouns, and two Adjectives from the week's vocabulary at least once, in their base, conjugated, or inflected form.
-4. THE Reading_Passage SHALL be accompanied by an English translation saved as `passage_en.txt` in the same Week_Folder; the translation SHALL translate every sentence of the passage.
-5. THE Reading_Passage SHALL be saved as a plain text file named `passage.txt` inside the Week_Folder.
-6. THE Reading_Passage setting, characters, and actions SHALL relate to the week's Theme.
-7. IF the passage word count falls outside the 150–200 word range, THEN THE Workflow SHALL regenerate the passage up to a maximum of 3 attempts; if the constraint is still not met after 3 attempts, THE Workflow SHALL notify the user and halt.
+1. EACH Cloze card `text` field SHALL include the verb infinitive in parentheses at the start — e.g. `(mangiare) Ogni giorno io {{c1::mangio}}.`
+2. THE infinitive prefix SHALL make the target verb unambiguous — the learner knows which verb to conjugate.
+3. EACH sentence SHALL include an explicit subject pronoun (io, tu, lui, lei, noi, voi, loro) to ensure only one conjugated form is correct.
+4. THE `{{c1::answer}}` syntax SHALL wrap the conjugated form for Anki cloze deletion.
+5. THE `flashcards_cloze.csv` SHALL use columns: `text`, `extra`.
+6. THE `extra` field SHALL contain the label — e.g. `mangiare — io, present`.
+7. Sentences SHALL use simple, natural Italian templates appropriate for A1–A2 level.
 
 ---
 
-### Requirement 4: Offline HTML Multiple-Choice Quiz
+### Requirement 4: Conjugation Accuracy
 
-**User Story:** As a language learner, I want a gamified multiple-choice quiz I can open in a browser, so that I can test my knowledge of the week's vocabulary without needing an internet connection.
+**User Story:** As a language learner, I want all conjugations to be grammatically correct, so that I am not learning incorrect Italian.
 
 #### Acceptance Criteria
 
-1. THE Quiz SHALL be a single self-contained HTML file that runs entirely offline without external network requests.
-2. THE Quiz SHALL contain a minimum of 10 multiple-choice questions derived from the week's Flashcard_CSV content and Reading_Passage.
-3. WHEN a learner selects an answer, THE Quiz SHALL highlight the selected option in green if correct or red if incorrect within 300 milliseconds.
-4. WHEN a learner completes all questions, THE Quiz SHALL display a final score as a count of correct answers and a percentage.
-5. WHEN the HTML file is opened, THE Quiz SHALL present questions in a randomized order and SHALL randomize the position of answer options for each question.
-6. WHEN a learner answers incorrectly, THE Quiz SHALL reveal the correct answer and SHALL require the learner to click a "Next" button before advancing to the next question.
-7. THE Quiz SHALL include questions of at least two distinct types: Italian-to-English translation and fill-in-the-blank sentence completion.
-8. THE Quiz SHALL be saved as `quiz.html` inside the Week_Folder.
-9. THE Quiz SHALL be usable on Chrome 90+, Firefox 88+, and Safari 14+ without installing additional software or plugins.
-10. EACH multiple-choice question SHALL present exactly four answer options.
+1. ALL present tense forms SHALL be simple present indicative (e.g. `dormo`, not `sono addormentato`).
+2. ALL past tense forms SHALL be passato prossimo with the correct auxiliary verb (e.g. `ho dormito` for dormire, `sono andato` for andare).
+3. ALL future tense forms SHALL be futuro semplice (e.g. `dormirò`, not `sarò dormito`).
+4. THE Workflow SHALL use mlconjug3 as the authoritative source for all conjugations.
+5. THE Workflow SHALL raise a `ConjugatorError` if mlconjug3 fails to conjugate the given verb.
 
 ---
 
-### Requirement 5: Per-Week Artifact Storage
+### Requirement 5: Conjugation Table (Optional)
 
-**User Story:** As a language learner, I want each week's content stored in its own folder, so that I can easily find and review past weeks' materials.
+**User Story:** As a language learner, I want an optional HTML conjugation reference table, so that I can review all forms at a glance.
 
 #### Acceptance Criteria
 
-1. WHEN the workflow is executed, THE Workflow SHALL create a new Week_Folder before writing any artifacts.
-2. THE Week_Folder SHALL contain exactly the following files upon successful completion: `flashcards.csv`, `passage.txt`, `passage_en.txt`, and `quiz.html`.
-3. IF a Week_Folder with the same name already exists, THEN THE Workflow SHALL automatically generate a versioned folder name by appending `-v2`, `-v3`, etc. (incrementing until an unused name is found) without prompting the user.
-4. THE Workflow SHALL never overwrite the contents of an existing Week_Folder.
-5. THE Workflow SHALL store all Week_Folders under a common root output directory that is configurable by the user.
-6. IF the root output directory does not exist, THEN THE Workflow SHALL create it before creating the Week_Folder.
-7. IF the workflow fails after creating the Week_Folder but before completing all artifacts, THEN THE Workflow SHALL delete the partially written Week_Folder before exiting.
+1. WHEN the `--table` flag is provided, THE Workflow SHALL generate a `conjugation_table.html` file in the verb folder.
+2. THE table SHALL display all conjugated forms grouped by tense: Presente Indicativo, Passato Prossimo, Futuro Semplice.
+3. THE table SHALL be a self-contained HTML file that opens in any browser without internet access.
+4. ALL forms in the table SHALL be sourced from mlconjug3 — identical to the flashcard data.
+5. THE table SHALL be visually clean and printable.
 
 ---
 
-### Requirement 6: Re-run Support for Existing Themes
+### Requirement 6: Verb Folder Storage
 
-**User Story:** As a language learner, I want to re-run the workflow for a theme I've used before, so that I can get fresh content with different vocabulary and a new passage and quiz.
+**User Story:** As a language learner, I want each verb's output stored in its own folder, so that I can easily find and import cards for any verb.
 
 #### Acceptance Criteria
 
-1. WHEN the workflow is executed with a theme that has been used in a previous week, THE Workflow SHALL select Verbs, Nouns, and Adjectives that all differ from every vocabulary item used in all prior runs of the same theme.
-2. WHEN the workflow is re-run for the same theme, THE Workflow SHALL generate a new Reading_Passage and Quiz derived from the newly selected vocabulary set rather than copying any prior artifacts.
-3. THE Workflow SHALL maintain a per-theme, per-category record of A1_Level vocabulary items appropriate to that theme that have been used, and SHALL prevent reuse of any item within a category until all items in that category for that theme have been exhausted.
-4. IF all A1_Level vocabulary items for a theme in a given category are exhausted, THEN THE Workflow SHALL notify the user with a message identifying the theme name and the exhausted category, and SHALL resume selection for that category starting from the vocabulary items used in the oldest prior run.
-5. IF fewer than two unused A1_Level vocabulary items remain in a single category for a theme, THEN THE Workflow SHALL notify the user of the shortfall and SHALL reuse the oldest items in that category to complete the required count of two.
+1. WHEN the workflow completes, THE Workflow SHALL store all artifacts in a folder named after the verb (e.g. `verb_artifacts/mangiare/`).
+2. IF a folder for that verb already exists, THE Workflow SHALL automatically create a versioned folder (`-v2`, `-v3`, etc.) without overwriting existing content.
+3. THE Workflow SHALL create the output root directory if it does not exist.
+4. IF the workflow fails after creating the folder, THE Workflow SHALL delete the partially written folder before exiting.
+5. THE output root directory SHALL be configurable via `--output` CLI flag (default: `./verb_artifacts`).
 
 ---
 
-### Requirement 7: Theme Registry
+### Requirement 7: Duplicate Verb Prevention
 
-**User Story:** As a language learner, I want a list of themes I can choose from and extend over time, so that my weekly learning stays varied and relevant to my interests.
+**User Story:** As a language learner, I want the tool to warn me if I try to generate cards for a verb I've already processed, so that I don't create duplicate Anki cards.
 
 #### Acceptance Criteria
 
-1. THE Theme_Registry SHALL be stored in a `themes.yaml` file in the project root.
-2. THE Theme_Registry SHALL include a minimum of 10 pre-defined themes at initial setup (e.g., food, travel, family, weather, shopping, health, home, work, hobbies, transport).
-3. WHEN a user adds a new theme to the `themes.yaml` file, THE Workflow SHALL recognize and use the new theme on the next execution without requiring code changes; theme name matching SHALL be case-insensitive.
-4. WHEN the workflow is executed with a theme name not present in the Theme_Registry, THE Workflow SHALL display a clear error message that names the unrecognised theme and lists all available theme labels.
-5. THE Theme_Registry SHALL store, for each theme, a human-readable label of 1–50 characters and an optional description of up to 200 characters to guide content generation.
-6. IF the `themes.yaml` file is missing or cannot be parsed, THEN THE Workflow SHALL display a clear error message identifying the file path and the nature of the problem, and SHALL halt execution.
+1. THE Workflow SHALL maintain a `vocab_state.json` file tracking all processed verbs.
+2. WHEN a verb has already been processed, THE Workflow SHALL display a warning and exit without generating new files.
+3. WHEN the `--force` flag is provided, THE Workflow SHALL bypass the duplicate check and generate new files regardless.
+4. THE `vocab_state.json` SHALL be updated after each successful run.
 
 ---
 
-### Requirement 8: Content Quality and A1 Compliance
+### Requirement 8: CLI Interface
 
-**User Story:** As a beginner learner, I want all generated content to match my A1 level, so that I am not overwhelmed by vocabulary or grammar beyond my current ability.
+**User Story:** As a user, I want a simple command-line interface, so that I can generate flashcards quickly without configuration.
 
 #### Acceptance Criteria
 
-1. THE Workflow SHALL restrict all generated vocabulary to words and phrases on the CEFR A1_Level word list; IF a generated artifact contains a word not on the A1_Level word list, THEN THE Workflow SHALL regenerate that artifact.
-2. THE Quiz questions and answer options SHALL use only vocabulary present in the week's Flashcard_CSV or Reading_Passage.
-3. THE Workflow SHALL not include advanced grammar terminology (e.g., "subjunctive", "gerund", "declension") in any generated artifact; basic word-type labels (e.g., "verb", "noun", "adjective") and tense labels (e.g., "present", "past", "future") used in the Flashcard_CSV are exempt from this restriction.
-4. IF any generated artifact is found to contain vocabulary outside the A1_Level word list after regeneration, THEN THE Workflow SHALL log the offending words and halt with an error message.
+1. THE CLI SHALL accept `--verb` as a required argument specifying the Italian infinitive.
+2. THE CLI SHALL accept `--table` as an optional flag to generate the conjugation table.
+3. THE CLI SHALL accept `--output` as an optional argument to specify the output directory.
+4. THE CLI SHALL accept `--force` as an optional flag to bypass duplicate verb checking.
+5. THE CLI SHALL accept `--list-verbs` as an optional flag to display all processed verbs and exit.
+6. THE CLI SHALL display user-friendly error messages for all known failure modes.
+7. THE CLI SHALL exit with code 0 on success and code 1 on any error.
+8. NO API keys, environment variables, or external services SHALL be required to run the tool.

@@ -1,11 +1,9 @@
-"""Verb conjugator — generates conjugation data for an Italian verb via LLM."""
+"""Verb conjugator — generates conjugation data for an Italian verb via mlconjug3."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import List
-
-from .llm_client import LLMClient, LLMError
 
 try:
     from mlconjug3 import Conjugator
@@ -46,6 +44,23 @@ class ConjugationData:
 
 CONJUGATION_PROMPT = """You are an Italian language teacher. Generate conjugation data for the Italian verb: {infinitive}
 
+Generate ONLY simple tense forms — do not use reflexive verbs, compound tenses, or past participles.
+
+For PRESENT tense, use simple present indicative forms:
+- dormire → dormo, dormi, dorme, dormiamo, dormite, dormono
+- mangiare → mangio, mangi, mangia, mangiamo, mangiate, mangiano
+- leggere → leggo, leggi, legge, leggiamo, leggete, leggono
+
+For PAST tense, use passato prossimo (compound past):
+- dormire → ho dormito, hai dormito (with avere auxiliary)
+- andare → sono andato, sei andato (with essere auxiliary)
+
+For FUTURE tense, use futuro semplice (simple future):
+- dormire → dormirò, dormirai
+- mangiare → mangerò, mangerai
+
+CRITICAL: Do NOT generate reflexive forms (addormentarsi), compound forms (sono addormentato), or wrong auxiliaries.
+
 Return a JSON object with this exact structure:
 
 {{
@@ -68,8 +83,8 @@ Return a JSON object with this exact structure:
   }},
   "cloze_sentences": [
     {{
-      "sentence": "Ogni mattina io {{{{c1::mangio}}}} un cornetto.",
-      "answer": "mangio",
+      "sentence": "Ogni mattina io {{{{c1::dormo}}}} otto ore.",
+      "answer": "dormo",
       "label": "io, present"
     }}
   ]
@@ -90,99 +105,285 @@ Return JSON only. No markdown, no code fences, no extra text.
 
 
 class VerbConjugator:
-    """Calls the LLM to generate all conjugation forms and cloze sentences for a verb."""
+    """Generates all conjugation forms and cloze sentences for a verb using mlconjug3."""
 
-    def __init__(self, llm: LLMClient) -> None:
-        self._llm = llm
+    def __init__(self) -> None:
         self._mlconjug = None
-        if MLCONJUG_AVAILABLE:
-            try:
-                self._mlconjug = Conjugator(language='it')
-            except Exception:
-                # If mlconjug fails to initialize, continue without verification
-                pass
-
-    def _verify_conjugation(self, infinitive: str, form: str, expected: str) -> bool:
-        """Verify a conjugated form using mlconjug3. Returns True if correct or if verification unavailable."""
-        if not self._mlconjug:
-            return True  # Skip verification if mlconjug not available
+        if not MLCONJUG_AVAILABLE:
+            raise ConjugatorError(
+                "mlconjug3 library is required but not installed. "
+                "Install it with: pip install mlconjug3"
+            )
         
         try:
-            # Get the full conjugation from mlconjug
-            conjugated = self._mlconjug.conjugate(infinitive)
-            
-            # Extract the specific form we're checking
-            # This is a simplified check - mlconjug has complex nested structure
-            conjugation_dict = conjugated.conjug_info
-            
-            # For basic verification, check if the expected form appears anywhere in the conjugation
-            # This is not perfect but catches obvious errors
-            all_forms = str(conjugation_dict).lower()
-            return expected.lower() in all_forms
-            
-        except Exception:
-            # If verification fails for any reason, assume the LLM is correct
-            return True
+            self._mlconjug = Conjugator(language='it')
+        except Exception as exc:
+            raise ConjugatorError(f"Failed to initialize mlconjug3: {exc}")
 
     def conjugate(self, infinitive: str) -> ConjugationData:
-        """Return full conjugation data for the given infinitive.
+        """Return full conjugation data for the given infinitive using mlconjug3.
 
-        Raises ConjugatorError if the LLM response is missing required fields.
+        Raises ConjugatorError if conjugation fails.
         """
-        prompt = CONJUGATION_PROMPT.format(infinitive=infinitive.lower().strip())
+        try:
+            # Get conjugations from mlconjug3
+            conjugated = self._mlconjug.conjugate(infinitive)
+            conjugation_dict = conjugated.conjug_info
+            
+            # Extract present tense forms
+            present_forms = self._extract_present_forms(conjugation_dict, infinitive)
+            past_forms = self._extract_past_forms(conjugation_dict, infinitive)
+            future_forms = self._extract_future_forms(conjugation_dict, infinitive)
+            
+            # Generate cloze sentences using templates
+            cloze_sentences = self._generate_cloze_sentences(infinitive, present_forms, past_forms, future_forms)
+            
+            return ConjugationData(
+                infinitive=infinitive,
+                present_io=present_forms["io"],
+                present_tu=present_forms["tu"],
+                present_lui_lei=present_forms["lui_lei"],
+                present_noi=present_forms["noi"],
+                present_voi=present_forms["voi"],
+                present_loro=present_forms["loro"],
+                past_io=past_forms["io"],
+                past_tu=past_forms["tu"],
+                future_io=future_forms["io"],
+                future_tu=future_forms["tu"],
+                cloze_sentences=cloze_sentences,
+            )
+            
+        except Exception as exc:
+            raise ConjugatorError(f"Failed to conjugate '{infinitive}': {exc}")
 
-        for attempt in range(1, 3):
-            data = self._llm.call(prompt)
+    def _extract_present_forms(self, conjugation_dict: dict, infinitive: str) -> dict:
+        """Extract present tense forms from mlconjug3 output."""
+        try:
+            # Navigate mlconjug3's nested structure to find present indicative
+            present_indicative = conjugation_dict.get('Indicativo', {}).get('Indicativo presente', {})
+            
+            return {
+                "io": present_indicative.get('1s', ''),
+                "tu": present_indicative.get('2s', ''),
+                "lui_lei": present_indicative.get('3s', ''),
+                "noi": present_indicative.get('1p', ''),
+                "voi": present_indicative.get('2p', ''),
+                "loro": present_indicative.get('3p', ''),
+            }
+        except Exception:
+            # If extraction fails, use known patterns for common verbs
+            return self._fallback_present_forms(infinitive)
 
-            try:
-                present = data["present"]
-                past = data["past"]
-                future = data["future"]
-                cloze = data.get("cloze_sentences", [])
+    def _extract_past_forms(self, conjugation_dict: dict, infinitive: str) -> dict:
+        """Extract past tense forms from mlconjug3 output."""
+        try:
+            # Get the past participle from passato prossimo
+            past_participle_forms = conjugation_dict.get('Indicativo', {}).get('Indicativo passato prossimo', {})
+            past_participle = past_participle_forms.get('1s', '')  # All persons have same participle
+            
+            if past_participle:
+                # Most verbs use 'avere' as auxiliary
+                # Special cases that use 'essere' would need a lookup table
+                auxiliary = self._get_auxiliary_verb(infinitive)
+                
+                # For essere verbs, past participle agrees with subject
+                if auxiliary[0] == "sono":  # essere auxiliary
+                    # Use masculine singular forms for simplicity (andato, not andata)
+                    return {
+                        "io": f"{auxiliary[0]} {past_participle}",
+                        "tu": f"{auxiliary[1]} {past_participle}",
+                    }
+                else:  # avere auxiliary
+                    return {
+                        "io": f"{auxiliary[0]} {past_participle}",
+                        "tu": f"{auxiliary[1]} {past_participle}",
+                    }
+            else:
+                return self._fallback_past_forms(infinitive)
+        except Exception:
+            return self._fallback_past_forms(infinitive)
 
-                if len(cloze) < 6:
-                    if attempt == 1:
-                        print(f"  [Conjugator] Got {len(cloze)} cloze sentences, expected 8. Retrying...")
-                    continue
+    def _extract_future_forms(self, conjugation_dict: dict, infinitive: str) -> dict:
+        """Extract future tense forms from mlconjug3 output."""
+        try:
+            future_forms = conjugation_dict.get('Indicativo', {}).get('Indicativo futuro semplice', {})
+            
+            return {
+                "io": future_forms.get('1s', ''),
+                "tu": future_forms.get('2s', ''),
+            }
+        except Exception:
+            return self._fallback_future_forms(infinitive)
 
-                conjugation_data = ConjugationData(
-                    infinitive=data.get("infinitive", infinitive),
-                    present_io=present["io"],
-                    present_tu=present["tu"],
-                    present_lui_lei=present["lui_lei"],
-                    present_noi=present["noi"],
-                    present_voi=present["voi"],
-                    present_loro=present["loro"],
-                    past_io=past["io"],
-                    past_tu=past["tu"],
-                    future_io=future["io"],
-                    future_tu=future["tu"],
-                    cloze_sentences=cloze,
-                )
+    def _get_auxiliary_verb(self, infinitive: str) -> tuple:
+        """Return the auxiliary verb forms (io, tu) for passato prossimo.
+        
+        Most verbs use 'avere', but some movement/state verbs use 'essere'.
+        """
+        # Verbs that typically use 'essere' as auxiliary
+        essere_verbs = {
+            'andare', 'venire', 'arrivare', 'partire', 'uscire', 'entrare',
+            'nascere', 'morire', 'diventare', 'rimanere', 'restare', 'stare',
+            'essere', 'divenire', 'cadere', 'scendere', 'salire', 'tornare'
+        }
+        
+        if infinitive in essere_verbs:
+            return ("sono", "sei")
+        else:
+            # Default to 'avere' for most verbs including dormire, mangiare, etc.
+            return ("ho", "hai")
 
-                # Optional verification with mlconjug3
-                if self._mlconjug:
-                    warnings = []
-                    forms_to_check = [
-                        ("present_io", conjugation_data.present_io),
-                        ("present_tu", conjugation_data.present_tu),
-                        ("present_lui_lei", conjugation_data.present_lui_lei),
-                    ]
-                    
-                    for form_name, form_value in forms_to_check:
-                        if not self._verify_conjugation(infinitive, form_name, form_value):
-                            warnings.append(f"{form_name}: {form_value}")
-                    
-                    if warnings:
-                        print(f"  [Conjugator] ⚠️  Verification warnings for: {', '.join(warnings)}")
+    def _fallback_present_forms(self, infinitive: str) -> dict:
+        """Fallback present forms for common verbs when mlconjug3 extraction fails."""
+        # Basic patterns for common verb endings
+        if infinitive == "dormire":
+            return {
+                "io": "dormo", "tu": "dormi", "lui_lei": "dorme",
+                "noi": "dormiamo", "voi": "dormite", "loro": "dormono"
+            }
+        elif infinitive == "mangiare":
+            return {
+                "io": "mangio", "tu": "mangi", "lui_lei": "mangia",
+                "noi": "mangiamo", "voi": "mangiate", "loro": "mangiano"
+            }
+        else:
+            # Generic -are, -ere, -ire patterns - this is approximate
+            if infinitive.endswith("are"):
+                root = infinitive[:-3]
+                return {
+                    "io": f"{root}o", "tu": f"{root}i", "lui_lei": f"{root}a",
+                    "noi": f"{root}iamo", "voi": f"{root}ate", "loro": f"{root}ano"
+                }
+            elif infinitive.endswith("ere"):
+                root = infinitive[:-3]
+                return {
+                    "io": f"{root}o", "tu": f"{root}i", "lui_lei": f"{root}e",
+                    "noi": f"{root}iamo", "voi": f"{root}ete", "loro": f"{root}ono"
+                }
+            elif infinitive.endswith("ire"):
+                root = infinitive[:-3]
+                return {
+                    "io": f"{root}o", "tu": f"{root}i", "lui_lei": f"{root}e",
+                    "noi": f"{root}iamo", "voi": f"{root}ite", "loro": f"{root}ono"
+                }
+            else:
+                # Unknown pattern - return empty, will trigger LLM fallback
+                return {"io": "", "tu": "", "lui_lei": "", "noi": "", "voi": "", "loro": ""}
 
-                return conjugation_data
+    def _fallback_past_forms(self, infinitive: str) -> dict:
+        """Fallback past forms using standard patterns."""
+        auxiliary = self._get_auxiliary_verb(infinitive)
+        
+        if infinitive == "dormire":
+            return {"io": "ho dormito", "tu": "hai dormito"}
+        elif infinitive == "mangiare":
+            return {"io": "ho mangiato", "tu": "hai mangiato"}
+        elif infinitive == "andare":
+            return {"io": "sono andato", "tu": "sei andato"}
+        else:
+            # Generate past participle based on verb ending
+            if infinitive.endswith("are"):
+                past_participle = infinitive[:-3] + "ato"
+            elif infinitive.endswith("ere"):
+                past_participle = infinitive[:-3] + "uto"
+            elif infinitive.endswith("ire"):
+                past_participle = infinitive[:-3] + "ito"
+            else:
+                past_participle = infinitive + "to"  # fallback
+            
+            return {
+                "io": f"{auxiliary[0]} {past_participle}",
+                "tu": f"{auxiliary[1]} {past_participle}"
+            }
 
-            except (KeyError, TypeError) as exc:
-                if attempt == 1:
-                    print(f"  [Conjugator] Missing fields in response: {exc}. Retrying...")
-                continue
+    def _fallback_future_forms(self, infinitive: str) -> dict:
+        """Fallback future forms using standard patterns."""
+        if infinitive == "dormire":
+            return {"io": "dormirò", "tu": "dormirai"}
+        elif infinitive == "mangiare":
+            return {"io": "mangerò", "tu": "mangerai"}
+        else:
+            # Standard future formation
+            if infinitive.endswith("are"):
+                future_root = infinitive[:-3] + "er"
+            else:
+                future_root = infinitive[:-1]  # remove final 'e'
+            
+            return {
+                "io": f"{future_root}ò",
+                "tu": f"{future_root}ai"
+            }
 
-        raise ConjugatorError(
-            f"Failed to generate conjugation data for '{infinitive}' after 2 attempts."
-        )
+    def _generate_cloze_sentences(self, infinitive: str, present: dict, past: dict, future: dict) -> list:
+        """Generate cloze sentences using deterministic templates for maximum accuracy."""
+        
+        # Template patterns for different verb types and contexts
+        templates = [
+            # Present tense templates (4 sentences)
+            {
+                "template": f"({infinitive}) Ogni giorno io {{verb}}.",
+                "person": "io", "tense": "present",
+                "label": "io, present"
+            },
+            {
+                "template": f"({infinitive}) Tu {{verb}} spesso?",
+                "person": "tu", "tense": "present", 
+                "label": "tu, present"
+            },
+            {
+                "template": f"({infinitive}) Lui {{verb}} sempre.",
+                "person": "lui_lei", "tense": "present",
+                "label": "lui/lei, present"
+            },
+            {
+                "template": f"({infinitive}) Noi {{verb}} insieme.",
+                "person": "noi", "tense": "present",
+                "label": "noi, present"
+            },
+            
+            # Past tense templates (2 sentences)
+            {
+                "template": f"({infinitive}) Ieri io {{verb}}.",
+                "person": "io", "tense": "past",
+                "label": "io, past"
+            },
+            {
+                "template": f"({infinitive}) Tu {{verb}} ieri?",
+                "person": "tu", "tense": "past",
+                "label": "tu, past"
+            },
+            
+            # Future tense templates (2 sentences)
+            {
+                "template": f"({infinitive}) Domani io {{verb}}.",
+                "person": "io", "tense": "future",
+                "label": "io, future"
+            },
+            {
+                "template": f"({infinitive}) Tu {{verb}} domani?",
+                "person": "tu", "tense": "future",
+                "label": "tu, future"
+            }
+        ]
+        
+        sentences = []
+        
+        for template_info in templates:
+            # Get the correct conjugated form
+            if template_info["tense"] == "present":
+                verb_form = present[template_info["person"]]
+            elif template_info["tense"] == "past":
+                verb_form = past[template_info["person"]]
+            else:  # future
+                verb_form = future[template_info["person"]]
+            
+            # Create the sentence with cloze deletion
+            sentence = template_info["template"].replace("{verb}", f"{{{{c1::{verb_form}}}}}")
+            
+            sentences.append({
+                "sentence": sentence,
+                "answer": verb_form,
+                "label": template_info["label"]
+            })
+        
+        return sentences

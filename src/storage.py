@@ -62,18 +62,18 @@ class StorageManager:
         (folder / "flashcards_basic.csv").write_text(basic_csv, encoding="utf-8")
         (folder / "flashcards_cloze.csv").write_text(cloze_csv, encoding="utf-8")
 
-    def write_passage(self, folder: Path, passage_html: str) -> None:
-        """Write the HTML passage file into the given folder."""
-        (folder / "passage.html").write_text(passage_html, encoding="utf-8")
+    def write_conjugation_table(self, folder: Path, table_html: str) -> None:
+        """Write the HTML conjugation table file into the given folder."""
+        (folder / "conjugation_table.html").write_text(table_html, encoding="utf-8")
 
-    def record_run(self, folder_name: str, infinitive: str, passage: bool) -> None:
+    def record_run(self, folder_name: str, infinitive: str, table: bool = False) -> None:
         """Append a run entry to verb_log.json."""
         self._log.append(
             {
                 "run": len(self._log) + 1,
                 "folder": folder_name,
                 "verb": infinitive,
-                "passage": passage,
+                "table": table,
                 "timestamp": datetime.utcnow().isoformat() + "Z",
             }
         )

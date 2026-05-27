@@ -1,13 +1,13 @@
 {
   "enabled": true,
   "name": "Run Italian Learning Workflow",
-  "description": "Manually trigger the weekly Italian learning workflow. Prompts you to pick a theme and generates flashcards, reading passage, and quiz into a new weekly_artifacts folder.",
+  "description": "Manually trigger the Italian verb flashcard generator. Ask the user for a verb and generate Anki flashcards and optional conjugation table.",
   "version": "1",
   "when": {
     "type": "userTriggered"
   },
   "then": {
     "type": "askAgent",
-    "prompt": "The user wants to run the Italian learning workflow. \n\n1. Ask the user which theme they want to use this week. Show them the available themes by running: python3 run.py --list-themes (cwd: /Users/andrewgriffith/Documents/Kiro Dev/italian-learning-workflow)\n2. Once they pick a theme, run the workflow: python3 run.py --theme {chosen_theme} (cwd: /Users/andrewgriffith/Documents/Kiro Dev/italian-learning-workflow)\n3. When complete, tell the user where their files were saved and remind them to open quiz.html in their browser and import flashcards.csv into Anki."
+    "prompt": "The user wants to generate Italian verb flashcards.\n\n1. Ask the user which Italian verb infinitive they want to generate flashcards for (e.g. mangiare, dormire, andare).\n2. Ask if they also want a conjugation reference table (--table flag).\n3. Run the workflow with the chosen verb: python3 run.py --verb {chosen_verb} [--table] (cwd: /Users/andrewgriffith/Documents/Kiro Dev/italian-learning-workflow)\n4. When complete, tell the user where their files were saved and remind them to import flashcards_basic.csv and flashcards_cloze.csv into Anki as Basic and Cloze note types respectively."
   }
 }

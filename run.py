@@ -3,6 +3,7 @@
 
 Usage:
     python run.py --verb mangiare
+    python run.py --verb mangiare --table
     python run.py --verb mangiare --output ./my_output
     python run.py --verb mangiare --force
     python run.py --list-verbs
@@ -11,16 +12,11 @@ Usage:
 import argparse
 import sys
 
-# Load .env before importing anything that reads env vars
-from dotenv import load_dotenv
-load_dotenv()
-
 from src.orchestrator import WorkflowOrchestrator
 from src.vocab_tracker import VocabTracker
-from src.llm_client import LLMError
 from src.verb_conjugator import ConjugatorError
 from src.flashcard_builder import FlashcardError
-from src.passage_builder import PassageError
+from src.conjugation_table_builder import ConjugationTableError
 
 
 def main() -> int:
@@ -30,6 +26,7 @@ def main() -> int:
         epilog="""
 Examples:
   python run.py --verb mangiare
+  python run.py --verb mangiare --table
   python run.py --verb mangiare --output ./my_output
   python run.py --verb mangiare --force
   python run.py --list-verbs
@@ -50,6 +47,11 @@ Examples:
         "--force",
         action="store_true",
         help="Re-generate cards even if this verb has been processed before.",
+    )
+    parser.add_argument(
+        "--table",
+        action="store_true",
+        help="Generate HTML conjugation reference table in addition to flashcards.",
     )
     parser.add_argument(
         "--list-verbs",
@@ -82,13 +84,9 @@ Examples:
             infinitive=args.verb,
             output_dir=args.output,
             force=args.force,
+            table=args.table,
         )
         return 0
-
-    except LLMError as exc:
-        print(f"\n❌ LLM error: {exc}", file=sys.stderr)
-        print("   Check your OPENAI_API_KEY in .env and that Ollama is running.", file=sys.stderr)
-        return 1
 
     except ConjugatorError as exc:
         print(f"\n❌ Conjugation failed: {exc}", file=sys.stderr)
@@ -98,8 +96,8 @@ Examples:
         print(f"\n❌ Flashcard generation failed: {exc}", file=sys.stderr)
         return 1
 
-    except PassageError as exc:
-        print(f"\n❌ Passage generation failed: {exc}", file=sys.stderr)
+    except ConjugationTableError as exc:
+        print(f"\n❌ Conjugation table generation failed: {exc}", file=sys.stderr)
         return 1
 
     except KeyboardInterrupt:

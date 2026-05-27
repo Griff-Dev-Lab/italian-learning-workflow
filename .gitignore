@@ -1,6 +1,5 @@
 # Generated artifacts
 verb_artifacts/
-weekly_artifacts/
 
 # Environment variables
 .env

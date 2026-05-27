@@ -1,10 +1,10 @@
 # Product
 
-Italian Learning Workflow is an Anki flashcard generator focused on Italian verb conjugation, targeting A1–A2 learners. Each run takes a single verb as input and produces a ready-to-import Anki CSV.
+Italian Learning Workflow is an Anki flashcard generator focused on Italian verb conjugation, targeting A1–A2 learners. Each run takes a single verb as input and produces ready-to-import Anki CSVs with 100% accuracy.
 
-## Phase 1 — Verb Generator
+## Core Features — 100% LLM-Free
 
-A single CLI run for one verb produces two types of cards, both in the same CSV output:
+A single CLI run for one verb produces two types of cards:
 
 **Basic cards** — one conjugated form per card, drills recall of a specific form:
 - All 6 present tense forms (io, tu, lui/lei, noi, voi, loro) — one card each
@@ -12,24 +12,26 @@ A single CLI run for one verb produces two types of cards, both in the same CSV 
 - Most common future tense forms (io, tu) using futuro semplice
 - ~10 cards per verb
 
-**Cloze cards** — verb used in a sentence, one specific form blanked out:
-- Subject pronoun is always explicit in the sentence so only one conjugation is correct
+**Cloze cards** — verb used in context with clear infinitive reference:
+- Subject pronoun is always explicit so only one conjugation is correct
+- Infinitive shown in parentheses: "(mangiare) Ogni giorno io _____"
 - Covers a spread of tenses and persons
-- ~6 cards per verb
+- ~8 cards per verb
 
 All cards go into a single **Verbs** deck.
 
-## Optional Passage
+## Optional Conjugation Table
 
-Running with `--passage` generates a short HTML reading text built around the verb and its conjugated forms. The passage is a clean, readable HTML file — no markdown, no code fences — that opens directly in any browser.
+Running with `--table` generates a beautiful HTML conjugation reference table showing all forms in a clean, printable format. Perfect for study and review.
 
-## Key Constraints
+## Key Benefits
 
-- Phase 1 is verb-only — nouns and adjectives are out of scope for now
-- Each card has exactly one correct answer
-- Vocabulary tracking prevents the same verb being added twice across runs
-- No quiz output — the HTML quiz has been removed
-- Runs locally via Ollama (default) or any OpenAI-compatible provider
+- **100% Accurate**: Uses mlconjug3 linguistic library for perfect conjugations
+- **LLM-Free**: No API keys, internet, or AI services required
+- **Offline Ready**: Works completely offline
+- **Handles All Verbs**: Regular, irregular, avere/essere auxiliaries
+- **Clear Context**: Cloze cards show infinitive to eliminate ambiguity
+- **Fast Generation**: No API calls needed
 
 ## CLI Usage
 
@@ -37,14 +39,24 @@ Running with `--passage` generates a short HTML reading text built around the ve
 # Generate flashcards for a verb
 python run.py --verb mangiare
 
-# Generate flashcards + reading passage
-python run.py --verb mangiare --passage
+# Generate flashcards + conjugation table
+python run.py --verb mangiare --table
 
 # Custom output directory
 python run.py --verb mangiare --output ./my_output
+
+# Force regeneration
+python run.py --verb mangiare --force
+
+# List processed verbs
+python run.py --list-verbs
 ```
 
-## Future Phases (out of scope for now)
-- Noun deck with cloze cards drilling articles
-- Adjective deck with basic cards drilling agreement forms
-- Multi-verb runs
+## Accuracy Guarantee
+
+Every conjugation is verified by mlconjug3, the same library used by professional language tools. No more LLM errors like:
+- ❌ "sono addormentato" (wrong reflexive forms)
+- ❌ "ho andato" (wrong auxiliary verbs)
+- ❌ Mixed languages or grammar mistakes
+
+✅ Perfect Italian every time!

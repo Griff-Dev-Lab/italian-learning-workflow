@@ -1,17 +1,1 @@
-output_dir: ./weekly_artifacts
-openai_model: mistral
-openai_base_url: http://localhost:11434/v1
-max_retries: 3
-
-# --- Provider options ---
-# Ollama (local, free, default):
-#   openai_model: mistral
-#   openai_base_url: http://localhost:11434/v1
-#
-# OpenAI:
-#   openai_model: gpt-4o-mini
-#   openai_base_url: https://api.openai.com/v1
-#
-# Google Gemini (free tier):
-#   openai_model: gemini-1.5-flash
-#   openai_base_url: https://generativelanguage.googleapis.com/v1beta/openai
+output_dir: ./verb_artifacts
