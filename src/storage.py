@@ -1,4 +1,4 @@
-"""Storage manager — creates week folders and writes artifacts atomically."""
+"""Storage manager — creates verb folders and writes artifacts."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ class StorageManager:
 
     def __init__(self, output_root: Path | str) -> None:
         self._root = Path(output_root)
-        self._log_path = self._root / "run_log.json"
+        self._log_path = self._root / "verb_log.json"
         self._log: list = []
         self._ensure_root()
         self._load_log()
@@ -32,17 +32,13 @@ class StorageManager:
         with self._log_path.open("w", encoding="utf-8") as f:
             json.dump(self._log, f, ensure_ascii=False, indent=2)
 
-    def next_run_number(self) -> int:
-        """Return the next sequential run number (1-based)."""
-        return len(self._log) + 1
+    def resolve_folder_name(self, infinitive: str) -> str:
+        """Return a folder name for the verb that does not already exist.
 
-    def resolve_folder_name(self, week_num: int, theme_id: str) -> str:
-        """Return a folder name that does not already exist.
-
-        Base name: week-{NN}-{theme}
-        If taken: week-{NN}-{theme}-v2, -v3, etc.
+        Base name: {infinitive}
+        If taken: {infinitive}-v2, -v3, etc.
         """
-        base = f"week-{week_num:02d}-{theme_id.lower().replace(' ', '-')}"
+        base = infinitive.lower().strip()
         candidate = base
         version = 2
         while (self._root / candidate).exists():
@@ -50,34 +46,34 @@ class StorageManager:
             version += 1
         return candidate
 
-    def create_week_folder(self, folder_name: str) -> Path:
-        """Create the week folder and return its path."""
+    def create_verb_folder(self, folder_name: str) -> Path:
+        """Create the verb folder and return its path."""
         folder = self._root / folder_name
         folder.mkdir(parents=True, exist_ok=False)
         return folder
 
-    def write_artifacts(
+    def write_flashcards(
         self,
         folder: Path,
-        flashcards_csv: str,
-        passage_it: str,
-        passage_en: str,
-        quiz_html: str,
+        basic_csv: str,
+        cloze_csv: str,
     ) -> None:
-        """Write all four artifact files into the given folder."""
-        (folder / "flashcards.csv").write_text(flashcards_csv, encoding="utf-8")
-        (folder / "passage.txt").write_text(passage_it, encoding="utf-8")
-        (folder / "passage_en.txt").write_text(passage_en, encoding="utf-8")
-        (folder / "quiz.html").write_text(quiz_html, encoding="utf-8")
+        """Write Basic and Cloze CSV files into the given folder."""
+        (folder / "flashcards_basic.csv").write_text(basic_csv, encoding="utf-8")
+        (folder / "flashcards_cloze.csv").write_text(cloze_csv, encoding="utf-8")
 
-    def record_run(self, folder_name: str, theme_id: str, vocab: dict) -> None:
-        """Append a run entry to run_log.json."""
+    def write_passage(self, folder: Path, passage_html: str) -> None:
+        """Write the HTML passage file into the given folder."""
+        (folder / "passage.html").write_text(passage_html, encoding="utf-8")
+
+    def record_run(self, folder_name: str, infinitive: str, passage: bool) -> None:
+        """Append a run entry to verb_log.json."""
         self._log.append(
             {
                 "run": len(self._log) + 1,
                 "folder": folder_name,
-                "theme": theme_id,
-                "vocab": vocab,
+                "verb": infinitive,
+                "passage": passage,
                 "timestamp": datetime.utcnow().isoformat() + "Z",
             }
         )

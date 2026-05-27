@@ -1,4 +1,4 @@
-"""Flashcard builder — generates Anki-compatible CSV from vocabulary."""
+"""Flashcard builder — builds Basic and Cloze Anki CSVs from conjugation data."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ import io
 from dataclasses import dataclass
 from typing import List
 
-from .llm_client import LLMClient, LLMError
+from .verb_conjugator import ConjugationData
 
 
 class FlashcardError(Exception):
@@ -15,117 +15,77 @@ class FlashcardError(Exception):
 
 
 @dataclass
-class FlashcardRow:
-    italian_form: str        # e.g. "mangio" or "pane"
-    english_translation: str # e.g. "I eat" or "bread"
-    source_word: str         # infinitive or base form
-    word_type: str           # "verb" | "noun" | "adjective"
-    tense_label: str         # "present" | "past" | "future" | "base"
-    italian_example: str     # ≤12 words
-    english_example: str     # translation of italian_example
+class BasicCardRow:
+    """One Basic note — front/back pair drilling a single conjugated form."""
+    front: str   # e.g. "mangiare (io, present)"
+    back: str    # e.g. "mangio"
 
 
-CSV_HEADER = [
-    "italian_form",
-    "english_translation",
-    "source_word",
-    "word_type",
-    "tense_label",
-    "italian_example",
-    "english_example",
-]
+@dataclass
+class ClozeCardRow:
+    """One Cloze note — sentence with {{c1::answer}} and an extra hint field."""
+    text: str    # e.g. "Ogni mattina io {{c1::mangio}} un cornetto."
+    extra: str   # e.g. "mangiare — io, present"
 
-FLASHCARD_PROMPT = """You are an Italian language teacher creating A1-level flashcard data.
 
-Theme: {theme_label}
-Theme description: {theme_description}
-
-Vocabulary to use:
-- Verbs: {verbs}
-- Nouns: {nouns}
-- Adjectives: {adjectives}
-
-Generate exactly 10 flashcard objects in a JSON array under the key "cards".
-
-Rules:
-- For each VERB: create 3 cards — one for present tense (io form), one for past tense (passato prossimo, io form), one for future tense (futuro semplice, io form)
-- For each NOUN: create 1 card with the base form (include the article, e.g. "il pane")
-- For each ADJECTIVE: create 1 card with the base form (masculine singular)
-- Total: 2 verbs × 3 = 6 verb cards + 2 noun cards + 2 adjective cards = 10 cards
-- All example sentences must be 12 words or fewer
-- Use only A1-level vocabulary — simple, everyday words
-- Do NOT use grammar terms like subjunctive, gerund, declension
-- Tense labels must be exactly: "present", "past", "future", or "base"
-- Word type must be exactly: "verb", "noun", or "adjective"
-
-Return JSON only. Example structure:
-{{
-  "cards": [
-    {{
-      "italian_form": "mangio",
-      "english_translation": "I eat",
-      "source_word": "mangiare",
-      "word_type": "verb",
-      "tense_label": "present",
-      "italian_example": "Io mangio la pizza ogni giorno.",
-      "english_example": "I eat pizza every day."
-    }}
-  ]
-}}"""
+BASIC_CSV_HEADER = ["front", "back"]
+CLOZE_CSV_HEADER = ["text", "extra"]
 
 
 class FlashcardBuilder:
-    """Generates flashcard data and writes RFC 4180-compliant UTF-8 CSV."""
+    """Builds Basic and Cloze card rows from ConjugationData and serialises to CSV."""
 
-    def __init__(self, llm: LLMClient) -> None:
-        self._llm = llm
+    def build_basic(self, data: ConjugationData) -> List[BasicCardRow]:
+        """Return Basic card rows — one per conjugated form."""
+        infinitive = data.infinitive
+        rows: List[BasicCardRow] = [
+            # Present tense — all 6 forms
+            BasicCardRow(f"{infinitive} (io, present)",      data.present_io),
+            BasicCardRow(f"{infinitive} (tu, present)",      data.present_tu),
+            BasicCardRow(f"{infinitive} (lui/lei, present)", data.present_lui_lei),
+            BasicCardRow(f"{infinitive} (noi, present)",     data.present_noi),
+            BasicCardRow(f"{infinitive} (voi, present)",     data.present_voi),
+            BasicCardRow(f"{infinitive} (loro, present)",    data.present_loro),
+            # Past tense — io and tu
+            BasicCardRow(f"{infinitive} (io, past)",         data.past_io),
+            BasicCardRow(f"{infinitive} (tu, past)",         data.past_tu),
+            # Future tense — io and tu
+            BasicCardRow(f"{infinitive} (io, future)",       data.future_io),
+            BasicCardRow(f"{infinitive} (tu, future)",       data.future_tu),
+        ]
+        return rows
 
-    def build(self, theme, vocab: dict) -> List[FlashcardRow]:
-        """Call LLM to generate flashcard rows. Retries once if row count is wrong."""
-        prompt = FLASHCARD_PROMPT.format(
-            theme_label=theme.label,
-            theme_description=theme.description,
-            verbs=", ".join(vocab.get("verbs", [])),
-            nouns=", ".join(vocab.get("nouns", [])),
-            adjectives=", ".join(vocab.get("adjectives", [])),
-        )
+    def build_cloze(self, data: ConjugationData) -> List[ClozeCardRow]:
+        """Return Cloze card rows from the LLM-generated sentences."""
+        rows: List[ClozeCardRow] = []
+        for item in data.cloze_sentences:
+            sentence = str(item.get("sentence", "")).strip()
+            label = str(item.get("label", "")).strip()
+            if not sentence:
+                continue
+            extra = f"{data.infinitive} — {label}" if label else data.infinitive
+            rows.append(ClozeCardRow(text=sentence, extra=extra))
 
-        for attempt in range(1, 3):  # max 2 attempts
-            data = self._llm.call(prompt)
-            cards_raw = data.get("cards", [])
-            if len(cards_raw) == 10:
-                return [self._parse_row(r) for r in cards_raw]
-            if attempt == 1:
-                print(f"  [Flashcard] Got {len(cards_raw)} cards, expected 10. Retrying...")
+        if not rows:
+            raise FlashcardError(
+                f"No cloze sentences were generated for '{data.infinitive}'."
+            )
+        return rows
 
-        raise FlashcardError(
-            f"Flashcard generation returned {len(cards_raw)} rows after 2 attempts. Expected 10."
-        )
-
-    def _parse_row(self, raw: dict) -> FlashcardRow:
-        return FlashcardRow(
-            italian_form=str(raw.get("italian_form", "")),
-            english_translation=str(raw.get("english_translation", "")),
-            source_word=str(raw.get("source_word", "")),
-            word_type=str(raw.get("word_type", "")),
-            tense_label=str(raw.get("tense_label", "")),
-            italian_example=str(raw.get("italian_example", "")),
-            english_example=str(raw.get("english_example", "")),
-        )
-
-    def to_csv(self, rows: List[FlashcardRow]) -> str:
-        """Return RFC 4180-compliant UTF-8 CSV string with header row."""
+    def to_basic_csv(self, rows: List[BasicCardRow]) -> str:
+        """Return RFC 4180-compliant UTF-8 CSV for Basic note type."""
         output = io.StringIO()
         writer = csv.writer(output, quoting=csv.QUOTE_MINIMAL, lineterminator="\n")
-        writer.writerow(CSV_HEADER)
+        writer.writerow(BASIC_CSV_HEADER)
         for row in rows:
-            writer.writerow([
-                row.italian_form,
-                row.english_translation,
-                row.source_word,
-                row.word_type,
-                row.tense_label,
-                row.italian_example,
-                row.english_example,
-            ])
+            writer.writerow([row.front, row.back])
+        return output.getvalue()
+
+    def to_cloze_csv(self, rows: List[ClozeCardRow]) -> str:
+        """Return RFC 4180-compliant UTF-8 CSV for Cloze note type."""
+        output = io.StringIO()
+        writer = csv.writer(output, quoting=csv.QUOTE_MINIMAL, lineterminator="\n")
+        writer.writerow(CLOZE_CSV_HEADER)
+        for row in rows:
+            writer.writerow([row.text, row.extra])
         return output.getvalue()

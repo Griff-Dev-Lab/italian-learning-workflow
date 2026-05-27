@@ -1,151 +1,87 @@
-"""Workflow orchestrator — wires all modules together for a single run."""
+"""Workflow orchestrator — wires all modules together for a single verb run."""
 
 from __future__ import annotations
 
 from pathlib import Path
-from typing import List
 
-from .theme_registry import ThemeRegistry, ThemeRegistryError, UnknownThemeError
-from .vocab_tracker import VocabTracker
 from .llm_client import LLMClient, LLMError
+from .verb_conjugator import VerbConjugator, ConjugatorError
 from .flashcard_builder import FlashcardBuilder, FlashcardError
 from .passage_builder import PassageBuilder, PassageError
-from .quiz_builder import QuizBuilder, QuizError
+from .vocab_tracker import VocabTracker
 from .storage import StorageManager
-
-# A1-level vocabulary pools per theme — used to seed VocabTracker on first run.
-# These are the words the LLM will be asked to use; the LLM generates all
-# conjugations, translations, and examples from these base forms.
-VOCAB_POOLS: dict[str, dict[str, List[str]]] = {
-    "food": {
-        "verbs": ["mangiare", "bere", "cucinare", "assaggiare", "comprare", "portare", "volere", "preferire"],
-        "nouns": ["pane", "acqua", "pizza", "pasta", "caffè", "latte", "frutta", "verdura", "tavolo", "ristorante"],
-        "adjectives": ["buono", "fresco", "caldo", "freddo", "dolce", "piccante", "grande", "piccolo"],
-    },
-    "travel": {
-        "verbs": ["andare", "partire", "arrivare", "prendere", "cercare", "prenotare", "viaggiare", "tornare"],
-        "nouns": ["treno", "aereo", "autobus", "biglietto", "valigia", "hotel", "stazione", "città", "mappa", "passaporto"],
-        "adjectives": ["lontano", "vicino", "veloce", "lento", "nuovo", "vecchio", "bello", "comodo"],
-    },
-    "family": {
-        "verbs": ["avere", "essere", "vivere", "abitare", "chiamare", "visitare", "aiutare", "amare"],
-        "nouns": ["madre", "padre", "fratello", "sorella", "nonno", "nonna", "figlio", "figlia", "famiglia", "casa"],
-        "adjectives": ["giovane", "anziano", "simpatico", "gentile", "alto", "basso", "felice", "stanco"],
-    },
-    "weather": {
-        "verbs": ["fare", "piovere", "nevicare", "essere", "sembrare", "cambiare", "uscire", "restare"],
-        "nouns": ["sole", "pioggia", "neve", "vento", "nuvola", "temperatura", "stagione", "estate", "inverno", "primavera"],
-        "adjectives": ["caldo", "freddo", "nuvoloso", "soleggiato", "umido", "secco", "bello", "brutto"],
-    },
-    "shopping": {
-        "verbs": ["comprare", "vendere", "pagare", "cercare", "trovare", "portare", "costare", "scegliere"],
-        "nouns": ["negozio", "mercato", "prezzo", "soldi", "borsa", "scarpe", "vestito", "taglia", "cassa", "scontrino"],
-        "adjectives": ["caro", "economico", "grande", "piccolo", "nuovo", "bello", "colorato", "comodo"],
-    },
-    "health": {
-        "verbs": ["stare", "sentire", "avere", "andare", "prendere", "dormire", "riposare", "mangiare"],
-        "nouns": ["medico", "ospedale", "farmacia", "medicina", "testa", "stomaco", "febbre", "dolore", "salute", "corpo"],
-        "adjectives": ["malato", "sano", "stanco", "forte", "debole", "bene", "male", "grave"],
-    },
-    "home": {
-        "verbs": ["abitare", "vivere", "pulire", "aprire", "chiudere", "cucinare", "dormire", "guardare"],
-        "nouns": ["casa", "camera", "cucina", "bagno", "salotto", "letto", "tavolo", "sedia", "finestra", "porta"],
-        "adjectives": ["grande", "piccolo", "pulito", "sporco", "nuovo", "vecchio", "comodo", "luminoso"],
-    },
-    "work": {
-        "verbs": ["lavorare", "studiare", "iniziare", "finire", "chiamare", "scrivere", "leggere", "parlare"],
-        "nouns": ["ufficio", "lavoro", "collega", "riunione", "computer", "telefono", "email", "stipendio", "orario", "capo"],
-        "adjectives": ["occupato", "libero", "difficile", "facile", "importante", "urgente", "bravo", "stanco"],
-    },
-    "hobbies": {
-        "verbs": ["giocare", "leggere", "ascoltare", "guardare", "correre", "nuotare", "disegnare", "cantare"],
-        "nouns": ["libro", "musica", "sport", "calcio", "film", "bicicletta", "parco", "palestra", "hobby", "tempo"],
-        "adjectives": ["divertente", "noioso", "interessante", "facile", "difficile", "bello", "rilassante", "attivo"],
-    },
-    "transport": {
-        "verbs": ["prendere", "guidare", "aspettare", "arrivare", "partire", "camminare", "fermare", "salire"],
-        "nouns": ["macchina", "autobus", "metro", "bicicletta", "fermata", "strada", "semaforo", "parcheggio", "biglietto", "conducente"],
-        "adjectives": ["veloce", "lento", "pieno", "vuoto", "diretto", "comodo", "vicino", "lontano"],
-    },
-}
 
 
 class WorkflowOrchestrator:
-    """Runs the full weekly content generation pipeline."""
+    """Runs the full flashcard generation pipeline for a single Italian verb."""
 
-    def __init__(self) -> None:
-        self._registry = ThemeRegistry()
+    def run(
+        self,
+        infinitive: str,
+        output_dir: str = "./verb_artifacts",
+        force: bool = False,
+    ) -> None:
+        """Generate Anki flashcard CSVs and example sentences HTML for a verb.
 
-    def run(self, theme_name: str, output_dir: str = "./weekly_artifacts") -> None:
+        Args:
+            infinitive: The Italian verb infinitive, e.g. "mangiare".
+            output_dir: Root directory for output folders.
+            force: If True, skip the duplicate-verb check and run anyway.
+        """
         output_root = Path(output_dir)
         storage = StorageManager(output_root)
         vocab_tracker = VocabTracker(output_root)
 
-        week_folder: Path | None = None
+        verb_folder: Path | None = None
 
-        try:
-            # Step 1: Load and validate theme (before initialising LLM client)
-            print(f"[1/6] Loading theme '{theme_name}'...")
-            theme = self._registry.get_theme(theme_name)
+        # Step 1: Validate verb and check for duplicates
+        print(f"[1/4] Checking verb '{infinitive}'...")
+        infinitive = infinitive.lower().strip()
 
-            # Initialise LLM client only after theme is validated
-            llm = LLMClient()
-            self._flashcard_builder = FlashcardBuilder(llm)
-            self._passage_builder = PassageBuilder(llm)
-            self._quiz_builder = QuizBuilder(llm)
-            print(f"      Theme: {theme.label}")
-            # Step 2: Seed vocab pool and select words
-            print("[2/6] Selecting vocabulary...")
-            pool = VOCAB_POOLS.get(theme.id, {})
-            for category, words in pool.items():
-                vocab_tracker.set_pool(theme.id, category, words)
+        if not force and vocab_tracker.has_verb(infinitive):
+            print(
+                f"\n⚠️  '{infinitive}' has already been processed.\n"
+                f"   Use --force to generate cards again anyway."
+            )
+            return
 
-            vocab = {
-                "verbs": vocab_tracker.select_words(theme.id, "verbs", 2),
-                "nouns": vocab_tracker.select_words(theme.id, "nouns", 2),
-                "adjectives": vocab_tracker.select_words(theme.id, "adjectives", 2),
-            }
-            print(f"      Verbs: {vocab['verbs']}")
-            print(f"      Nouns: {vocab['nouns']}")
-            print(f"      Adjectives: {vocab['adjectives']}")
+        # Step 2: Generate conjugation data
+        print(f"[2/4] Generating conjugations for '{infinitive}'...")
+        llm = LLMClient()
+        conjugator = VerbConjugator(llm)
+        data = conjugator.conjugate(infinitive)
+        print(f"      Present: {data.present_io}, {data.present_tu}, {data.present_lui_lei}, "
+              f"{data.present_noi}, {data.present_voi}, {data.present_loro}")
+        print(f"      Past:    {data.past_io}, {data.past_tu}")
+        print(f"      Future:  {data.future_io}, {data.future_tu}")
+        print(f"      Cloze sentences: {len(data.cloze_sentences)}")
 
-            # Step 3: Generate flashcards
-            print("[3/6] Generating flashcards...")
-            flashcard_rows = self._flashcard_builder.build(theme, vocab)
-            flashcards_csv = self._flashcard_builder.to_csv(flashcard_rows)
-            print(f"      Generated {len(flashcard_rows)} flashcard rows.")
+        # Step 3: Build flashcard CSVs
+        print("[3/4] Building flashcards...")
+        builder = FlashcardBuilder()
+        basic_rows = builder.build_basic(data)
+        cloze_rows = builder.build_cloze(data)
+        basic_csv = builder.to_basic_csv(basic_rows)
+        cloze_csv = builder.to_cloze_csv(cloze_rows)
+        print(f"      Basic cards: {len(basic_rows)}")
+        print(f"      Cloze cards: {len(cloze_rows)}")
 
-            # Step 4: Generate reading passage
-            print("[4/6] Generating reading passage...")
-            passage_it, passage_en = self._passage_builder.build(theme, vocab)
-            word_count = len(passage_it.split())
-            print(f"      Passage: {word_count} words.")
+        # Step 4: Write artifacts
+        print("[4/4] Writing files...")
+        folder_name = storage.resolve_folder_name(infinitive)
+        verb_folder = storage.create_verb_folder(folder_name)
+        storage.write_flashcards(verb_folder, basic_csv, cloze_csv)
 
-            # Step 5: Generate quiz
-            print("[5/6] Generating quiz...")
-            questions = self._quiz_builder.build_questions(flashcard_rows, passage_it)
-            week_num = storage.next_run_number()
-            folder_name = storage.resolve_folder_name(week_num, theme.id)
-            quiz_html = self._quiz_builder.to_html(questions, f"Week {week_num:02d} — {theme.label}")
-            print(f"      Generated {len(questions)} quiz questions.")
+        print("      Generating example sentences...")
+        passage_builder = PassageBuilder(llm)
+        passage_html = passage_builder.build(data)
+        storage.write_passage(verb_folder, passage_html)
 
-            # Step 6: Write artifacts
-            print("[6/6] Writing artifacts...")
-            week_folder = storage.create_week_folder(folder_name)
-            storage.write_artifacts(week_folder, flashcards_csv, passage_it, passage_en, quiz_html)
-            storage.record_run(folder_name, theme.id, vocab)
-            vocab_tracker.save()
+        storage.record_run(folder_name, infinitive, passage=True)
+        vocab_tracker.mark_verb(infinitive)
+        vocab_tracker.save()
 
-            print(f"\n✅ Done! Artifacts written to: {week_folder}")
-            print(f"   flashcards.csv  — import into Anki")
-            print(f"   passage.txt     — Italian reading passage ({word_count} words)")
-            print(f"   passage_en.txt  — English translation")
-            print(f"   quiz.html       — open in any browser")
-
-        except (ThemeRegistryError, UnknownThemeError, LLMError,
-                FlashcardError, PassageError, QuizError) as exc:
-            storage.cleanup(week_folder)
-            raise
-        except Exception as exc:
-            storage.cleanup(week_folder)
-            raise
+        print(f"\n✅ Done! Artifacts written to: {verb_folder}")
+        print(f"   flashcards_basic.csv  — import into Anki as Basic note type")
+        print(f"   flashcards_cloze.csv  — import into Anki as Cloze note type")
+        print(f"   passage.html          — example sentences, open in any browser")

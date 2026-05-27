@@ -1,118 +1,136 @@
-# Italian Learning Workflow
+# Italian Verb Flashcard Generator
 
-A weekly content generator for A1-level Italian learners. Each run produces:
+An Anki flashcard generator focused on Italian verb conjugation for A1–A2 learners. Each run takes a single verb and produces ready-to-import Anki CSV files plus example sentences.
 
-- **Anki flashcard CSV** — 10 cards (2 verbs × 3 tenses + 2 nouns + 2 adjectives)
-- **Reading passage** — 150–200 word Italian text with English translation
-- **Offline HTML quiz** — Duolingo-style multiple choice, runs in any browser without internet
+## What it generates
 
-Runs entirely on your Mac using Ollama — no API key, no cost, no data leaves your machine.
+For each verb (e.g. `mangiare`), the tool creates:
 
----
+- **Basic flashcards** (10 cards) — individual conjugated forms for drilling recall
+  - All 6 present tense forms (io, tu, lui/lei, noi, voi, loro)
+  - Common past tense forms (io, tu) using passato prossimo  
+  - Common future tense forms (io, tu) using futuro semplice
+
+- **Cloze flashcards** (8 cards) — verb used in context with one form blanked out
+  - Subject pronouns ensure only one correct answer
+  - Covers present, past, and future tenses
+
+- **Example sentences** (HTML) — clean table showing proper usage
+  - 8 sentences covering all conjugated forms
+  - Italian sentence with English translation
+  - Semantically accurate and grammatically correct
 
 ## Setup
 
-### Step 1 — Install Ollama
+### Prerequisites
+- macOS with 8GB+ RAM
+- Python 3.10+
+- Ollama installed and running (or OpenAI/Gemini API key)
 
-Ollama runs AI models locally on your Mac. Free, private, no account needed.
+### Installation
 
-**Option A — Homebrew (recommended if you have it):**
-```bash
-brew install ollama
-```
+1. **Install Ollama** (free, runs locally)
+   ```bash
+   brew install ollama
+   # OR download from https://ollama.com/download
+   ```
 
-**Option B — Direct download:**
-Go to [ollama.com/download](https://ollama.com/download) and download the Mac app. Open it and follow the installer.
+2. **Download the Mistral model**
+   ```bash
+   ollama pull mistral
+   ```
 
-### Step 2 — Download the Mistral model
+3. **Start Ollama**
+   ```bash
+   ollama serve
+   ```
 
-```bash
-ollama pull mistral
-```
-
-This downloads the model (~4GB) once. You only need to do this once.
-
-### Step 3 — Start Ollama
-
-```bash
-ollama serve
-```
-
-Keep this running in a terminal tab while you use the workflow. If you installed the Mac app, it runs automatically in the menu bar.
-
-### Step 4 — Set up the project
-
-```bash
-cp .env.example .env
-pip install -r requirements.txt
-```
-
-The `.env` file already has `OPENAI_API_KEY=ollama` set — no changes needed.
-
----
+4. **Set up the project**
+   ```bash
+   git clone https://github.com/Griff-Dev-Lab/italian-learning-workflow.git
+   cd italian-learning-workflow
+   cp .env.example .env
+   pip install -r requirements.txt
+   ```
 
 ## Usage
 
 ```bash
-python run.py --theme food
-python run.py --theme travel
-python run.py --theme family --output ./my_output
+# Generate flashcards for a verb
+python run.py --verb mangiare
+
+# Check which verbs have been processed
+python run.py --list-verbs
+
+# Re-generate cards for an existing verb
+python run.py --verb mangiare --force
+
+# Custom output directory
+python run.py --verb mangiare --output ./my_output
 ```
 
-List all available themes:
-```bash
-python run.py --list-themes
-```
+## Output
 
----
+Each run creates a folder like `verb_artifacts/mangiare/` containing:
 
-## Output structure
+- `flashcards_basic.csv` — Import into Anki as **Basic** note type
+- `flashcards_cloze.csv` — Import into Anki as **Cloze** note type  
+- `passage.html` — Example sentences, open in any browser
 
-```
-weekly_artifacts/
-├── vocab_state.json        # tracks used vocabulary per theme
-├── run_log.json            # tracks run history
-├── week-01-food/
-│   ├── flashcards.csv      # import into Anki
-│   ├── passage.txt         # Italian reading passage
-│   ├── passage_en.txt      # English translation
-│   └── quiz.html           # open in any browser
-└── week-02-travel/
-    └── ...
-```
+## Anki Import
 
-Re-running the same theme creates a new folder (`week-02-food`, `week-03-food`, etc.) with fresh vocabulary.
+1. **Download Anki desktop** from [apps.ankiweb.net](https://apps.ankiweb.net)
+2. **Import Basic cards**: File → Import → select `flashcards_basic.csv` → set note type to **Basic**
+3. **Import Cloze cards**: File → Import → select `flashcards_cloze.csv` → set note type to **Cloze**
+4. **Sync to AnkiWeb** to access on mobile
 
----
+## Features
 
-## Adding themes
+- **Accuracy verification** — Uses mlconjug3 to verify LLM-generated conjugations
+- **Semantic constraints** — Structured prompts prevent nonsensical sentences
+- **Duplicate prevention** — Tracks processed verbs to avoid repeats
+- **Local-first** — Runs entirely on your Mac via Ollama (no API costs)
+- **Provider flexibility** — Switch to OpenAI or Gemini by editing `config.yaml`
 
-Edit `themes.yaml` and add a new entry:
+## Switching AI Providers
 
-```yaml
-- id: music
-  label: Music
-  description: Instruments, listening, concerts, and Italian songs.
-```
+Edit `config.yaml` to use different LLM providers:
 
-No code changes needed — the new theme is available immediately.
-
----
-
-## Switching AI provider
-
-Edit `config.yaml`. Options are documented inside the file:
-
-| Provider | Cost | Notes |
+| Provider | Cost | Configuration |
 |---|---|---|
-| Ollama (default) | Free | Runs locally, no internet needed |
-| OpenAI | ~$0.001/run | Requires API key from platform.openai.com |
-| Google Gemini | Free tier | Requires key from aistudio.google.com |
+| **Ollama** (default) | Free | `openai_model: mistral`<br>`openai_base_url: http://localhost:11434/v1` |
+| **OpenAI** | ~$0.001/run | `openai_model: gpt-4o-mini`<br>`openai_base_url: https://api.openai.com/v1` |
+| **Google Gemini** | Free tier | `openai_model: gemini-1.5-flash`<br>`openai_base_url: https://generativelanguage.googleapis.com/v1beta/openai` |
 
----
+## Project Structure
+
+```
+italian-learning-workflow/
+├── run.py                      # CLI entry point
+├── config.yaml                 # LLM provider configuration
+├── requirements.txt            # Python dependencies
+├── .env                        # API key (gitignored)
+├── src/                        # Application modules
+│   ├── orchestrator.py         # Main workflow coordinator
+│   ├── verb_conjugator.py      # LLM + mlconjug3 conjugation
+│   ├── flashcard_builder.py    # CSV generation for Anki
+│   ├── passage_builder.py      # HTML example sentences
+│   ├── vocab_tracker.py        # Duplicate prevention
+│   └── storage.py              # File management
+└── verb_artifacts/             # Generated output
+    ├── verb_log.json           # Run history
+    └── {verb}/                 # One folder per verb
+        ├── flashcards_basic.csv
+        ├── flashcards_cloze.csv
+        └── passage.html
+```
 
 ## Requirements
 
 - macOS with 8GB+ RAM (for Ollama)
 - Python 3.10+
-- Ollama installed and running
+- Ollama installed and running (or API key for OpenAI/Gemini)
+
+## License
+
+MIT License - see LICENSE file for details.
