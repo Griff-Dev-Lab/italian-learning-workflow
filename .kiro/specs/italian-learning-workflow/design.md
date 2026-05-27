@@ -314,3 +314,131 @@ Python 3.10+ required. No API keys, no internet connection, no LLM.
 - `config.yaml` controls model name and base URL (Ollama, OpenAI, Gemini)
 - `--passage` flag in CLI triggers passage generation after flashcard writing
 - Passages use the verified mlconjug3 conjugations as input — LLM only writes prose, never conjugates
+
+## Components and Interfaces
+
+### VerbConjugator
+
+```python
+class VerbConjugator:
+    def __init__(self) -> None
+        # Raises ConjugatorError if mlconjug3 unavailable
+
+    def conjugate(self, infinitive: str) -> ConjugationData
+        # Raises ConjugatorError on failure
+```
+
+### FlashcardBuilder
+
+```python
+class FlashcardBuilder:
+    def build_basic(self, data: ConjugationData) -> list[BasicCardRow]
+    def build_cloze(self, data: ConjugationData) -> list[ClozeCardRow]
+        # Raises FlashcardError if cloze_sentences is empty
+    def to_basic_csv(self, rows: list[BasicCardRow]) -> str
+    def to_cloze_csv(self, rows: list[ClozeCardRow]) -> str
+```
+
+### ConjugationTableBuilder
+
+```python
+class ConjugationTableBuilder:
+    def build_html_table(self, data: ConjugationData) -> str
+        # Raises ConjugationTableError on failure
+```
+
+### VocabTracker
+
+```python
+class VocabTracker:
+    def __init__(self, output_root: Path | str) -> None
+    def has_verb(self, infinitive: str) -> bool
+    def mark_verb(self, infinitive: str) -> None
+    def save(self) -> None
+    def all_verbs(self) -> list[str]
+```
+
+### StorageManager
+
+```python
+class StorageManager:
+    def __init__(self, output_root: Path | str) -> None
+    def resolve_folder_name(self, infinitive: str) -> str
+    def create_verb_folder(self, folder_name: str) -> Path
+    def write_flashcards(self, folder: Path, basic_csv: str, cloze_csv: str) -> None
+    def write_conjugation_table(self, folder: Path, table_html: str) -> None
+    def record_run(self, folder_name: str, infinitive: str, table: bool) -> None
+    def cleanup(self, folder: Path | None) -> None
+```
+
+### WorkflowOrchestrator
+
+```python
+class WorkflowOrchestrator:
+    def run(
+        self,
+        infinitive: str,
+        output_dir: str = "./verb_artifacts",
+        force: bool = False,
+        table: bool = False,
+    ) -> None
+```
+
+---
+
+## Correctness Properties
+
+### Property 1: Conjugation accuracy
+**Validates: Requirements 4.4**
+
+Every conjugated form in the output must match the mlconjug3 source exactly — no transformation or modification after extraction.
+
+### Property 2: Correct auxiliary verb
+**Validates: Requirements 4.2**
+
+The auxiliary verb (avere/essere) must be correct for every verb — determined by the `ESSERE_VERBS` lookup set. Verbs not in the set default to avere.
+
+### Property 3: Unambiguous cloze cards
+**Validates: Requirements 3.1, 3.2, 3.3**
+
+Cloze sentences must always include the subject pronoun so only one conjugated form is correct. The infinitive prefix `(mangiare)` must appear on every cloze card to eliminate verb ambiguity.
+
+### Property 4: Correct card counts
+**Validates: Requirements 1.2, 1.3**
+
+Basic CSV must always contain exactly 10 rows (6 present + 2 past + 2 future). Cloze CSV must always contain exactly 8 rows (4 present + 2 past + 2 future).
+
+### Property 5: No folder overwrites
+**Validates: Requirements 6.2**
+
+No verb folder should ever be overwritten — versioning (`-v2`, `-v3`) must be applied when a folder already exists.
+
+### Property 6: Atomic state update
+**Validates: Requirements 7.4**
+
+`vocab_state.json` must be updated only after a fully successful run — never on partial or failed runs.
+
+---
+
+## Testing Strategy
+
+Since there is no automated test suite, correctness is validated manually:
+
+**Conjugation accuracy:**
+- Run a known regular verb (`mangiare`) and verify all 10 basic card forms against a reference grammar
+- Run a known irregular verb (`andare`) and verify present tense irregular forms (`vado`, `vai`, `va`, `andiamo`, `andate`, `vanno`)
+- Run an essere-auxiliary verb (`andare`, `venire`) and verify past tense uses `sono`/`sei` not `ho`/`hai`
+- Run an avere-auxiliary verb (`dormire`, `mangiare`) and verify past tense uses `ho`/`hai`
+
+**Cloze card format:**
+- Verify each cloze card starts with `(infinitive)` prefix
+- Verify `{{c1::form}}` syntax is present and the blanked form matches the basic card back
+
+**Duplicate prevention:**
+- Run the same verb twice and verify the second run shows the warning and exits cleanly
+- Run with `--force` and verify a new versioned folder is created
+
+**Future testing approach:**
+- Unit tests for `VerbConjugator` extraction methods using known verb/form pairs
+- Unit tests for `FlashcardBuilder` verifying row counts and field formats
+- Integration test running the full pipeline for a set of representative verbs

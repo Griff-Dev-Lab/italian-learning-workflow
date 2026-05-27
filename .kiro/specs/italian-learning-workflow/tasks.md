@@ -93,6 +93,20 @@ A Python CLI tool that generates Anki flashcard CSVs and optional HTML conjugati
 
 ## Task Dependency Graph
 
+```json
+{
+  "waves": [
+    { "wave": 1, "tasks": ["1"] },
+    { "wave": 2, "tasks": ["2", "3", "6"] },
+    { "wave": 3, "tasks": ["4", "5"] },
+    { "wave": 4, "tasks": ["7"] },
+    { "wave": 5, "tasks": ["8"] },
+    { "wave": 6, "tasks": ["9"] },
+    { "wave": 7, "tasks": ["10"] }
+  ]
+}
+```
+
 ```
 1 (scaffold)
 ├── 2 (vocab tracker)     ← no code deps
