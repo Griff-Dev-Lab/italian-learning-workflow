@@ -101,6 +101,25 @@ italian-learning-workflow/
         └── conjugation_table.html  # (optional, --table flag)
 ```
 
+## Roadmap
+
+### 🎓 Extended CEFR Level Support (B1, B2, C1, C2)
+Expand beyond A1–A2 to cover intermediate and advanced learners with additional tenses and moods appropriate to each level.
+
+### 📚 Extended Tenses and Moods
+- **Imperfetto** — imperfect past, essential for A2/B1 storytelling
+- **Condizionale** — conditional mood ("I would eat")
+- **Congiuntivo** — subjunctive mood, required for B2+
+- **Imperativo** — commands and requests
+
+### 📖 LLM-Powered Reading Passages
+Optional `--passage` flag to generate contextual reading texts built around the verb's conjugated forms. Will support:
+- Local models via **Ollama** (free, fully offline)
+- API-driven models via **OpenAI** or **Google Gemini**
+- Configurable via `config.yaml` — switch provider without code changes
+
+---
+
 ## License
 
 MIT License - see LICENSE file for details.

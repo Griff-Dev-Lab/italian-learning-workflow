@@ -60,3 +60,26 @@ Every conjugation is verified by mlconjug3, the same library used by professiona
 - ❌ Mixed languages or grammar mistakes
 
 ✅ Perfect Italian every time!
+
+---
+
+## Future Enhancements
+
+### 🎓 Extended CEFR Level Support (B1, B2, C1, C2)
+- Expand beyond A1–A2 to cover intermediate and advanced learners
+- B1/B2: subjunctive mood (congiuntivo), conditional (condizionale), imperative (imperativo)
+- C1/C2: all remaining moods and tenses (trapassato, futuro anteriore, congiuntivo trapassato)
+- Level flag: `python run.py --verb mangiare --level B1`
+
+### 📚 Extended Tenses and Moods
+- Imperfetto (imperfect past) — essential for A2/B1 storytelling
+- Condizionale presente (conditional) — "I would eat"
+- Congiuntivo presente (subjunctive) — required for B2+
+- Imperativo (imperative) — commands and requests
+
+### 📖 LLM-Powered Reading Passages
+- Optional `--passage` flag to generate contextual reading texts
+- Support for local models via Ollama (free, offline)
+- Support for API-driven models (OpenAI, Google Gemini)
+- Passages built around the verb's conjugated forms for contextual reinforcement
+- Configurable via `config.yaml` — switch provider without code changes
