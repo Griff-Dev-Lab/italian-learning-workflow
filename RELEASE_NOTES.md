@@ -1,3 +1,170 @@
+# Release Notes — v1.2.1
+
+**Release Date:** June 10, 2026
+
+## Overview
+
+v1.2.1 adds **comprehensive documentation** to help users get started quickly and understand the project's future direction. This release includes step-by-step Anki setup guides, a curated verb learning list, and a detailed roadmap for upcoming features.
+
+---
+
+## What's New
+
+### 📚 Comprehensive Documentation Structure
+
+New `docs/` directory with organized, user-facing guides:
+
+**[docs/README.md](docs/README.md)** — Documentation Index
+- Quick links to all guides
+- Learning path overview
+- Getting started checklist
+
+**[docs/ANKI_SETUP.md](docs/ANKI_SETUP.md)** — Complete Anki Import Guide
+- 6-step setup process with detailed instructions
+- Screenshots and descriptions for each step
+- Troubleshooting section covering common issues
+- Best practices for effective learning
+- Mobile sync instructions (AnkiWeb, AnkiDroid)
+
+**[docs/VERB_LIST.md](docs/VERB_LIST.md)** — Top 30 Essential Verbs
+- Organized by learning tier (Tier 1, 2, 3)
+- **Tier 1:** Core 10 verbs (essere, avere, fare, andare, dire, potere, volere, dovere, sapere, stare)
+- **Tier 2:** High-frequency 10 verbs (mangiare, bere, venire, uscire, prendere, mettere, dare, vedere, guardare, parlare)
+- **Tier 3:** Life/work 10 verbs (vivere, abitare, lavorare, trovare, sentire, chiedere, arrivare, partire, comprare, capire)
+- Ready-to-copy CLI commands for each verb
+- 6-week learning strategy with phase breakdown
+
+**[docs/ROADMAP.md](docs/ROADMAP.md)** — Feature Roadmap
+- Detailed plans for v1.3.0–v2.0.0
+- **v1.3.0:** Extended CEFR levels (B1, B2, C1, C2)
+- **v1.4.0:** LLM-powered reading passages (Ollama, OpenAI, Google Gemini)
+- **v1.5.0:** Batch processing & automation
+- **v1.6.0:** Customization & templates
+- **v1.7.0:** Analytics & learning insights
+- **v2.0.0:** Web interface & mobile app
+- Timeline summary and contribution guidelines
+
+### 📖 Documentation Reorganization
+
+**Main README.md:**
+- Simplified to focus on quick start
+- Links to comprehensive guides in `docs/`
+- Cleaner structure for new users
+
+### 🎯 User Experience Improvements
+
+- **Clearer learning path** — Tier-based verb list guides progression
+- **Better onboarding** — Step-by-step Anki setup removes friction
+- **Transparency** — Roadmap shows project direction and timeline
+- **Community engagement** — Contribution guidelines and feedback channels
+
+---
+
+## Breaking Changes
+
+⚠️ **None** — This is a documentation-only release. All code remains unchanged from v1.2.0.
+
+---
+
+## What's Included
+
+### Files Added
+- `docs/README.md` — Documentation index
+- `docs/ANKI_SETUP.md` — Anki import guide
+- `docs/ROADMAP.md` — Feature roadmap
+- `docs/VERB_LIST.md` — Verb learning list
+
+### Files Updated
+- `README.md` — Simplified with links to docs
+
+### Code
+- No code changes (v1.2.0 functionality unchanged)
+
+---
+
+## Migration Guide
+
+No migration needed. This is a documentation release.
+
+If you're upgrading from v1.2.0:
+1. Pull the latest code
+2. Check out the new guides in `docs/`
+3. Use [docs/VERB_LIST.md](docs/VERB_LIST.md) to plan your learning
+4. Follow [docs/ANKI_SETUP.md](docs/ANKI_SETUP.md) for Anki setup
+
+---
+
+## Known Limitations
+
+- Documentation is English-only (future versions may add translations)
+- Roadmap dates are estimates and subject to change
+- Some planned features (v1.4.0+) are not yet implemented
+
+---
+
+## What's Next
+
+### Planned for v1.3.0 (Q3 2026)
+
+- **Extended CEFR Levels** — Support for B1, B2, C1, C2 with additional tenses
+  - Imperfetto (imperfect past)
+  - Condizionale (conditional)
+  - Congiuntivo (subjunctive)
+  - Imperativo (imperative)
+- **`--level` flag** — Generate cards for specific CEFR levels
+- **Expanded conjugation tables** — Show all tenses organized by mood
+
+### Planned for v1.4.0 (Q4 2026)
+
+- **LLM-Powered Reading Passages** — Optional `--passage` flag
+- **Local models via Ollama** — Free, fully offline
+- **API-driven models** — OpenAI, Google Gemini support
+- **Configurable via `config.yaml`** — Switch providers without code changes
+
+See [docs/ROADMAP.md](docs/ROADMAP.md) for complete details.
+
+---
+
+## Contributors
+
+- Andrew Griffith (@Griff-Dev-Lab)
+
+---
+
+## Support
+
+For issues, feature requests, or questions:
+- GitHub Issues: [italian-learning-workflow/issues](https://github.com/Griff-Dev-Lab/italian-learning-workflow/issues)
+- GitHub Discussions: [italian-learning-workflow/discussions](https://github.com/Griff-Dev-Lab/italian-learning-workflow/discussions)
+- Documentation: [docs/README.md](docs/README.md)
+
+---
+
+## Changelog
+
+### v1.2.1 (June 10, 2026)
+- 📚 Add comprehensive documentation structure in `docs/` directory
+- 📖 Add Anki setup guide with 6-step import process and troubleshooting
+- 🎯 Add verb learning list with 30 essential verbs organized by tier
+- 🗺️ Add detailed roadmap for v1.3.0–v2.0.0
+- 📝 Simplify main README with links to comprehensive guides
+
+### v1.2.0 (May 27, 2026)
+- ✨ Expand to all 6 persons for past and future tenses (18 basic + 18 cloze cards per verb)
+- 📖 Add comprehensive Anki setup guide to README
+- 🔧 Update conjugation extraction methods for complete coverage
+- 📝 Update all specs and documentation
+
+### v1.1.0 (Previous)
+- Remove LLM dependency, use mlconjug3 as sole source
+- Add HTML conjugation table generation
+- Implement duplicate verb prevention
+- 100% accurate conjugations
+
+---
+
+**Thank you for using Italian Learning Workflow! Happy studying! 🇮🇹**
+
 # Release Notes — v1.2.0
 
 **Release Date:** May 27, 2026
