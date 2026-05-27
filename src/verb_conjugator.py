@@ -42,66 +42,11 @@ class ConjugationData:
     cloze_sentences: List[dict]  # [{"sentence": "...", "answer": "...", "label": "io, present"}, ...]
 
 
-CONJUGATION_PROMPT = """You are an Italian language teacher. Generate conjugation data for the Italian verb: {infinitive}
-
-Generate ONLY simple tense forms — do not use reflexive verbs, compound tenses, or past participles.
-
-For PRESENT tense, use simple present indicative forms:
-- dormire → dormo, dormi, dorme, dormiamo, dormite, dormono
-- mangiare → mangio, mangi, mangia, mangiamo, mangiate, mangiano
-- leggere → leggo, leggi, legge, leggiamo, leggete, leggono
-
-For PAST tense, use passato prossimo (compound past):
-- dormire → ho dormito, hai dormito (with avere auxiliary)
-- andare → sono andato, sei andato (with essere auxiliary)
-
-For FUTURE tense, use futuro semplice (simple future):
-- dormire → dormirò, dormirai
-- mangiare → mangerò, mangerai
-
-CRITICAL: Do NOT generate reflexive forms (addormentarsi), compound forms (sono addormentato), or wrong auxiliaries.
-
-Return a JSON object with this exact structure:
-
-{{
-  "infinitive": "{infinitive}",
-  "present": {{
-    "io": "...",
-    "tu": "...",
-    "lui_lei": "...",
-    "noi": "...",
-    "voi": "...",
-    "loro": "..."
-  }},
-  "past": {{
-    "io": "...",
-    "tu": "..."
-  }},
-  "future": {{
-    "io": "...",
-    "tu": "..."
-  }},
-  "cloze_sentences": [
-    {{
-      "sentence": "Ogni mattina io {{{{c1::dormo}}}} otto ore.",
-      "answer": "dormo",
-      "label": "io, present"
-    }}
-  ]
-}}
-
-Rules for cloze_sentences:
-- Generate exactly 8 sentences
-- Cover a spread of forms: at least 4 present tense (different persons), 2 past, 2 future
-- Always include the subject pronoun explicitly in the sentence (io, tu, lui, lei, noi, voi, loro)
-- The subject pronoun makes the blanked form the ONLY correct answer
-- Wrap the answer in {{{{c1::answer}}}} — this is Anki cloze syntax
-- Use simple A1-A2 level Italian — short sentences, everyday vocabulary
-- Each sentence must be natural and make sense in context
-- Do not repeat the same person/tense combination
-
-Return JSON only. No markdown, no code fences, no extra text.
-"""
+ESSERE_VERBS = {
+    'andare', 'venire', 'arrivare', 'partire', 'uscire', 'entrare',
+    'nascere', 'morire', 'diventare', 'rimanere', 'restare', 'stare',
+    'essere', 'divenire', 'cadere', 'scendere', 'salire', 'tornare'
+}
 
 
 class VerbConjugator:
@@ -220,17 +165,9 @@ class VerbConjugator:
         
         Most verbs use 'avere', but some movement/state verbs use 'essere'.
         """
-        # Verbs that typically use 'essere' as auxiliary
-        essere_verbs = {
-            'andare', 'venire', 'arrivare', 'partire', 'uscire', 'entrare',
-            'nascere', 'morire', 'diventare', 'rimanere', 'restare', 'stare',
-            'essere', 'divenire', 'cadere', 'scendere', 'salire', 'tornare'
-        }
-        
-        if infinitive in essere_verbs:
+        if infinitive in ESSERE_VERBS:
             return ("sono", "sei")
         else:
-            # Default to 'avere' for most verbs including dormire, mangiare, etc.
             return ("ho", "hai")
 
     def _fallback_present_forms(self, infinitive: str) -> dict:
