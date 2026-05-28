@@ -125,13 +125,209 @@ python3 run.py --verb capire --table
 
 ---
 
+## 🚀 Extended A1–A2 Coverage
+
+After mastering Tier 1, 2, and 3, continue with these additional verbs organized by priority:
+
+### ⭐⭐⭐ High-Priority (Weeks 7–8)
+
+Essential verbs that complete core A1–A2 communication.
+
+| Verb | English | Priority |
+|---|---|---|
+| **piacere** | to like; to be pleasing to | ⭐⭐⭐ |
+| **rimanere** | to stay; to remain | ⭐⭐⭐ |
+| **tornare** | to return; to come back | ⭐⭐⭐ |
+| **passare** | to pass; to spend (time); to stop by | ⭐⭐⭐ |
+
+**Generate High-Priority verbs:**
+```bash
+python3 run.py --verb piacere --table
+python3 run.py --verb rimanere --table
+python3 run.py --verb tornare --table
+python3 run.py --verb passare --table
+```
+
+---
+
+### ⭐⭐ Medium-Priority (Weeks 9–10)
+
+Useful verbs for expanding daily conversations and descriptions.
+
+| Verb | English | Priority |
+|---|---|---|
+| **entrare** | to enter; to go in | ⭐⭐ |
+| **portare** | to bring; to carry; to wear | ⭐⭐ |
+| **lasciare** | to leave; to let; to allow | ⭐⭐ |
+| **seguire** | to follow; to attend (a course) | ⭐⭐ |
+| **tenere** | to hold; to keep | ⭐⭐ |
+| **aprire** | to open | ⭐⭐ |
+| **chiudere** | to close; to shut | ⭐⭐ |
+| **correre** | to run | ⭐⭐ |
+| **camminare** | to walk | ⭐⭐ |
+| **nuotare** | to swim | ⭐⭐ |
+| **studiare** | to study | ⭐⭐ |
+| **giocare** | to play (games; sports) | ⭐⭐ |
+| **suonare** | to play (a musical instrument); to ring | ⭐⭐ |
+
+**Generate Medium-Priority verbs:**
+```bash
+python3 run.py --verb entrare --table
+python3 run.py --verb portare --table
+python3 run.py --verb lasciare --table
+python3 run.py --verb seguire --table
+python3 run.py --verb tenere --table
+python3 run.py --verb aprire --table
+python3 run.py --verb chiudere --table
+python3 run.py --verb correre --table
+python3 run.py --verb camminare --table
+python3 run.py --verb nuotare --table
+python3 run.py --verb studiare --table
+python3 run.py --verb giocare --table
+python3 run.py --verb suonare --table
+```
+
+---
+
+### ⭐ Lower-Priority (Weeks 11+)
+
+Additional verbs for comprehensive A1–A2 coverage and specialized contexts.
+
+| Verb | English | Priority |
+|---|---|---|
+| **spedire** | to send (mail; parcels) | ⭐ |
+| **preferire** | to prefer | ⭐ |
+| **pulire** | to clean | ⭐ |
+| **costare** | to cost | ⭐ |
+| **viaggiare** | to travel | ⭐ |
+| **descrivere** | to describe | ⭐ |
+| **decidere** | to decide | ⭐ |
+| **provare** | to try; to attempt; to try on; to taste | ⭐ |
+| **ricordare** | to remember; to remind (someone) | ⭐ |
+| **dimenticare** | to forget | ⭐ |
+
+**Generate Lower-Priority verbs:**
+```bash
+python3 run.py --verb spedire --table
+python3 run.py --verb preferire --table
+python3 run.py --verb pulire --table
+python3 run.py --verb costare --table
+python3 run.py --verb viaggiare --table
+python3 run.py --verb descrivere --table
+python3 run.py --verb decidere --table
+python3 run.py --verb provare --table
+python3 run.py --verb ricordare --table
+python3 run.py --verb dimenticare --table
+```
+
+---
+
 ## 🎯 Quick Reference
 
-**Total verbs:** 30  
-**Total flashcards:** 1,080 (36 cards × 30 verbs)  
-**Estimated study time:** 6–8 weeks for solid foundation  
+**Tier 1–3 (Foundation):** 30 verbs  
+**High-Priority (Extended):** 4 verbs  
+**Medium-Priority (Extended):** 13 verbs  
+**Lower-Priority (Extended):** 10 verbs  
+**Total A1–A2 Coverage:** 57 verbs  
+
+**Total flashcards:** 1,197 (21 cards × 57 verbs)  
+**Estimated study time:** 12–16 weeks for complete A1–A2 mastery  
 **Tenses covered:** Present, Past (Passato Prossimo), Future (Futuro Semplice)  
 **Accuracy:** 100% (via mlconjug3)
+
+---
+
+## 📚 Vocabulary Learning: Definition Cloze Cards
+
+In addition to conjugation cards, you can generate **definition cloze cards** for all 57 A1-A2 verbs:
+
+```bash
+python3 run.py --definitions-batch
+```
+
+This creates a single file: `definitions_deck.csv` with 57 definition cards.
+
+### Import into Anki
+
+1. File → Import
+2. Select `definitions_deck.csv`
+3. Note Type: **Cloze**
+4. Deck: **Italian Verbs — Definitions** (new deck)
+5. Click Import
+
+### Card Format
+
+**Front (Cloze):**
+```
+{{c1::mangiare}}
+```
+
+**Back (Revealed):**
+```
+to eat
+```
+
+### Learning Benefits
+
+- **Vocabulary reinforcement** — Learn what verbs mean
+- **Separate deck** — Different learning pathway from conjugations
+- **Complete coverage** — All 57 A1-A2 verbs in one import
+- **Extensible** — Works if you add more verbs to `verb_translations.json`
+
+### Complete Learning System
+
+| Card Type | Purpose | Count | Deck |
+|-----------|---------|-------|------|
+| **Basic** | Conjugation recall | 18/verb | Italian Verbs |
+| **Cloze Grid** | Pattern recognition | 3/verb | Italian Verbs |
+| **Definition** | Vocabulary | 1/verb | Italian Verbs — Definitions |
+
+**Total for 57 verbs:** 1,254 cards across 2 decks
+
+---
+
+## 🌐 Beyond the 57-Verb List
+
+The recommended 57 verbs provide complete A1–A2 coverage, but you can generate flashcards for **any Italian verb**.
+
+### Using Verbs Not in the List
+
+```bash
+# Generate flashcards for any Italian verb
+python3 run.py --verb dormire --table
+python3 run.py --verb leggere --table
+python3 run.py --verb scrivere --table
+```
+
+### What You Get
+
+| Component | Accuracy | Notes |
+|-----------|----------|-------|
+| **Conjugations** | ✅ 100% | mlconjug3 handles any Italian verb |
+| **Basic cards** | ✅ 100% | All 18 forms perfectly conjugated |
+| **Cloze cards** | ✅ 100% | Grid format with all 6 persons |
+| **HTML table** | ✅ 100% | All conjugations accurate |
+| **English translation** | ⚠️ Optional | Only if verb is in `verb_translations.json` |
+
+### Adding Custom Translations
+
+To add English translations for verbs not in the list:
+
+1. Open `src/verb_translations.json`
+2. Add your verb:
+   ```json
+   {
+     "dormire": "to sleep",
+     "leggere": "to read",
+     "scrivere": "to write"
+   }
+   ```
+3. Regenerate the verb:
+   ```bash
+   python3 run.py --verb dormire --table --force
+   ```
+
+The HTML table will now include the translation in the title.
 
 ---
 

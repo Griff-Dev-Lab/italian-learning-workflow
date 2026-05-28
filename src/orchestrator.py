@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from .verb_conjugator import VerbConjugator, ConjugatorError
@@ -88,3 +89,59 @@ class WorkflowOrchestrator:
         print(f"   flashcards_cloze.csv  — import into Anki as Cloze note type")
         if table:
             print(f"   conjugation_table.html — reference table, open in any browser")
+
+    def generate_definitions_batch(self, output_dir: str = "./verb_artifacts") -> None:
+        """Generate definition cloze cards for all verbs in verb_translations.json.
+
+        Creates a single CSV file with all definition cards ready to import into Anki.
+
+        Args:
+            output_dir: Root directory for output.
+        """
+        output_root = Path(output_dir)
+        storage = StorageManager(output_root)
+
+        # Load translations
+        translations_path = Path(__file__).parent / "verb_translations.json"
+        if not translations_path.exists():
+            raise FileNotFoundError(
+                f"verb_translations.json not found at {translations_path}"
+            )
+
+        with open(translations_path, "r", encoding="utf-8") as f:
+            translations = json.load(f)
+
+        print(f"[1/2] Loading translations...")
+        print(f"      Found {len(translations)} verbs")
+
+        # Build definition cards
+        print(f"[2/2] Building definition cards...")
+        definition_rows = []
+        for infinitive, translation in sorted(translations.items()):
+            # Format: front={{c1::infinitive}}, back=translation
+            front = f"{{{{c1::{infinitive}}}}}"
+            back = translation
+            definition_rows.append((front, back))
+
+        # Write to CSV
+        import csv
+        import io
+
+        output = io.StringIO()
+        writer = csv.writer(output, quoting=csv.QUOTE_MINIMAL, lineterminator="\n")
+        for front, back in definition_rows:
+            writer.writerow([front, back])
+
+        definitions_csv = output.getvalue()
+
+        # Save to file
+        output_root.mkdir(parents=True, exist_ok=True)
+        definitions_file = output_root / "definitions_deck.csv"
+        with open(definitions_file, "w", encoding="utf-8") as f:
+            f.write(definitions_csv)
+
+        print(f"\n✅ Done! Definitions deck created: {definitions_file}")
+        print(f"   Total cards: {len(definition_rows)}")
+        print(f"   Import into Anki as Cloze note type")
+        print(f"   Create deck: 'Italian Verbs — Definitions'")
+

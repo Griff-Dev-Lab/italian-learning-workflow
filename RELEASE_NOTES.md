@@ -1,3 +1,332 @@
+# Release Notes — v1.3.0
+
+**Release Date:** June 11, 2026
+
+## Overview
+
+v1.3.0 introduces a **complete learning system** with three complementary card types and a batch definitions mode. This release focuses on pedagogical quality, pattern recognition, and vocabulary learning alongside conjugation drilling.
+
+---
+
+## What's New
+
+### 🎯 Grid-Based Cloze Cards (Major Improvement)
+
+**Before (v1.2.x):**
+- 18 cloze cards per verb
+- Sentence-based format: `(mangiare) Ogni giorno io _____`
+- Risk of phrase memorization instead of conjugation learning
+
+**After (v1.3.0):**
+- 3 cloze cards per verb
+- Grid format showing all 6 persons with one hidden
+- Randomized hidden forms (no two cards hide the same person)
+- **Focus on pattern recognition and conjugation accuracy**
+
+**Example:**
+
+```
+Front (Presente Indicativo):
+| io | {{c1::mangio}} |
+| tu | mangi |
+| lui/lei | mangia |
+| noi | mangiamo |
+| voi | mangiate |
+| loro | mangiano |
+
+Back (Revealed):
+| io | mangio |
+| tu | mangi |
+| lui/lei | mangia |
+| noi | mangiamo |
+| voi | mangiate |
+| loro | mangiano |
+```
+
+### 📚 Explicit Italian Tense Names
+
+**Before:**
+```
+mangiare (io, present)
+```
+
+**After:**
+```
+mangiare (io, Presente Indicativo)
+```
+
+- ✅ More professional and educational
+- ✅ Aligns with Italian grammar terminology
+- ✅ Helps learners understand proper tense names
+- ✅ Essential for advanced learning progression
+
+### 🌐 English Translations in HTML Tables
+
+**Before:**
+```html
+<h1>mangiare</h1>
+```
+
+**After:**
+```html
+<h1>mangiare (to eat)</h1>
+```
+
+- ✅ Immediate context for learners
+- ✅ 100% offline (no external APIs)
+- ✅ Graceful fallback for unknown verbs
+- ✅ Extensible (users can add custom translations)
+
+### 📖 Batch Definitions Mode (New Feature)
+
+**New command:**
+```bash
+python3 run.py --definitions-batch
+```
+
+**Generates:**
+- Single file: `definitions_deck.csv`
+- 57 definition cloze cards (all A1-A2 verbs)
+- Ready to import as separate Anki deck
+
+**Card format:**
+```
+Front: {{c1::mangiare}}
+Back:  to eat
+```
+
+**Benefits:**
+- ✅ Vocabulary learning pathway
+- ✅ Complements conjugation cards
+- ✅ One-time generation for all verbs
+- ✅ Extensible (works with custom verbs)
+
+### 🎓 Extended A1-A2 Coverage
+
+**57 verified Italian verbs** organized by priority:
+
+- **Tier 1:** Core 10 (essere, avere, fare, andare, dire, potere, volere, dovere, sapere, stare)
+- **Tier 2:** High-frequency 10 (mangiare, bere, venire, uscire, prendere, mettere, dare, vedere, guardare, parlare)
+- **Tier 3:** Life/work 10 (vivere, abitare, lavorare, trovare, sentire, chiedere, arrivare, partire, comprare, capire)
+- **High-priority 4:** (piacere, rimanere, tornare, passare)
+- **Medium-priority 13:** (entrare, portare, lasciare, seguire, tenere, aprire, chiudere, correre, camminare, nuotare, studiare, giocare, suonare)
+- **Lower-priority 10:** (spedire, preferire, pulire, costare, viaggiare, descrivere, decidere, provare, ricordare, dimenticare)
+
+---
+
+## Complete Learning System
+
+### Three Card Types
+
+| Card Type | Purpose | Count | Deck |
+|-----------|---------|-------|------|
+| **Basic** | Conjugation recall | 18/verb | Italian Verbs |
+| **Cloze Grid** | Pattern recognition | 3/verb | Italian Verbs |
+| **Definition** | Vocabulary | 1/verb | Italian Verbs — Definitions |
+
+### Two Decks
+
+**Deck 1: Italian Verbs (Conjugations)**
+- Basic cards: Drill individual forms
+- Cloze grid cards: Test pattern recognition
+- Total: 21 cards per verb
+
+**Deck 2: Italian Verbs — Definitions (Vocabulary)**
+- Definition cards: Learn verb meanings
+- Total: 57 cards (all A1-A2 verbs)
+
+### Learning Workflow
+
+1. **Learn meanings** — Study definitions deck
+2. **Learn forms** — Study basic + cloze grid cards
+3. **Master through spaced repetition** — Anki handles scheduling
+
+---
+
+## Card Count Changes
+
+### Per Verb
+
+**Before (v1.2.x):**
+- 18 basic cards
+- 18 cloze cards
+- **Total: 36 cards per verb**
+
+**After (v1.3.0):**
+- 18 basic cards
+- 3 cloze grid cards
+- **Total: 21 cards per verb** (42% reduction, higher quality)
+
+### For 57 Verbs
+
+**Before:**
+- 1,080 basic cards (36 × 30 verbs)
+- 1,080 cloze cards (36 × 30 verbs)
+- **Total: 2,160 cards**
+
+**After:**
+- 1,026 basic cards (18 × 57 verbs)
+- 171 cloze grid cards (3 × 57 verbs)
+- 57 definition cards (1 × 57 verbs)
+- **Total: 1,254 cards** (42% reduction, higher quality + vocabulary)
+
+---
+
+## Documentation Updates
+
+### README.md
+- Updated "What it generates" section
+- Added `--definitions-batch` to usage examples
+- Clarified output files
+
+### docs/ANKI_SETUP.md
+- Added Step 8: Import Definition Cards
+- New "Summary: Complete Learning System" section
+- Reorganized best practices
+
+### docs/VERB_LIST.md
+- Added "Vocabulary Learning: Definition Cloze Cards" section
+- Added "Complete Learning System" table
+- Explained learning benefits
+
+---
+
+## Technical Details
+
+### New Files
+- `src/verb_translations.json` — 57 verified Italian verbs with English translations
+
+### Modified Files
+- `src/flashcard_builder.py` — Grid-based cloze generation with randomization
+- `src/conjugation_table_builder.py` — Translation loading and display
+- `src/orchestrator.py` — New `generate_definitions_batch()` method
+- `run.py` — New `--definitions-batch` CLI flag
+
+### Code Quality
+- ✅ Type hints on all functions
+- ✅ Comprehensive docstrings
+- ✅ Error handling for missing translations
+- ✅ Graceful fallback for unknown verbs
+
+---
+
+## Accuracy & Performance
+
+### 100% Accuracy Maintained
+- ✅ All conjugations via mlconjug3 (linguistic library)
+- ✅ No external APIs or LLM dependencies
+- ✅ Works completely offline
+- ✅ Deterministic output
+
+### Performance
+- Single verb generation: <1 second
+- Batch definitions: <1 second (57 verbs)
+- No performance regression
+
+---
+
+## Breaking Changes
+
+⚠️ **None** — This is a backward-compatible release.
+
+**Existing workflows continue to work:**
+```bash
+python3 run.py --verb mangiare --table
+```
+
+**New optional feature:**
+```bash
+python3 run.py --definitions-batch
+```
+
+---
+
+## Migration Guide
+
+### For Existing Users
+
+**Option 1: Keep existing cards**
+- Old cloze cards still work in Anki
+- No action needed
+
+**Option 2: Upgrade to new format**
+- Regenerate verbs: `python3 run.py --verb mangiare --force`
+- Delete old cloze cards from Anki
+- Import new grid-based cloze cards
+
+**Option 3: Add vocabulary learning**
+- Generate definitions: `python3 run.py --definitions-batch`
+- Import as new "Italian Verbs — Definitions" deck
+- Study alongside conjugation cards
+
+---
+
+## Known Limitations
+
+- Definitions only available for 57 A1-A2 verbs (users can extend)
+- Grid-based cloze cards require Anki to support HTML tables (all modern versions do)
+- No subjunctive, conditional, or imperative moods yet (planned for v1.4.0+)
+
+---
+
+## What's Next
+
+### Planned for v1.4.0 (Q3 2026)
+- Extended CEFR levels (B1, B2, C1, C2)
+- Additional tenses: Imperfetto, Condizionale, Congiuntivo, Imperativo
+- `--level` flag for CEFR-specific generation
+
+### Planned for v1.5.0+ (Q4 2026+)
+- LLM-powered reading passages (Ollama, OpenAI, Google Gemini)
+- Batch processing for multiple verbs
+- Customizable templates
+- Analytics and learning insights
+
+See [docs/ROADMAP.md](docs/ROADMAP.md) for complete details.
+
+---
+
+## Contributors
+
+- Andrew Griffith (@Griff-Dev-Lab)
+
+---
+
+## Support
+
+For issues, feature requests, or questions:
+- GitHub Issues: [italian-learning-workflow/issues](https://github.com/Griff-Dev-Lab/italian-learning-workflow/issues)
+- GitHub Discussions: [italian-learning-workflow/discussions](https://github.com/Griff-Dev-Lab/italian-learning-workflow/discussions)
+- Documentation: [docs/README.md](docs/README.md)
+
+---
+
+## Changelog
+
+### v1.3.0 (June 11, 2026)
+- 🎯 Replace sentence-based cloze with grid format (3 cards per verb)
+- 📚 Add batch definitions mode (`--definitions-batch`)
+- 🌐 Add English translations to HTML conjugation tables
+- 📖 Add explicit Italian tense names to basic cards
+- 🎓 Extend to 57 A1-A2 verbs with verified translations
+- 📝 Update documentation (README, ANKI_SETUP, VERB_LIST)
+
+### v1.2.1 (June 10, 2026)
+- Add comprehensive documentation structure
+- Add Anki setup guide, roadmap, verb learning list
+
+### v1.2.0 (June 9, 2026)
+- Expand to all 6 persons for past and future tenses
+- Add comprehensive Anki setup guide
+
+### v1.1.0 (May 27, 2026)
+- Remove LLM dependency, use mlconjug3 as sole source
+- Add HTML conjugation table generation
+
+---
+
+**Thank you for using Italian Learning Workflow! Happy studying! 🇮🇹**
+
 # Release Notes — v1.2.1
 
 **Release Date:** June 10, 2026

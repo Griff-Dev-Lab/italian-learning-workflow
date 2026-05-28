@@ -66,91 +66,49 @@ This keeps all your Italian verb cards organized in one place.
 
 ---
 
-## Step 5: Review Your Cards
+## Step 8: Import Definition Cards (Optional)
 
-1. Click on the **"Italian Verbs"** deck
-2. Click **"Study Now"** to start reviewing
-3. You'll see:
-   - **Basic cards**: Front shows the prompt → Back shows the answer
-   - **Cloze cards**: Shows the sentence with a blank → Reveal to see the answer
+For vocabulary reinforcement, you can also import definition cloze cards:
 
-### Card examples:
+1. Generate the definitions deck (one-time):
+   ```bash
+   python3 run.py --definitions-batch
+   ```
 
-**Basic Card:**
-```
-Front: mangiare (io, present)
-Back:  mangio
-```
+2. Go to **File** → **Import**
+3. Select **`definitions_deck.csv`** from `verb_artifacts/`
+4. In the import dialog:
+   - **Note Type**: Select **"Cloze"**
+   - **Deck**: Create new deck **"Italian Verbs — Definitions"**
+   - **Allow HTML in fields**: Check ✓
+   - Click **Import**
+5. You should see: **"Imported 57 notes."**
 
-**Cloze Card:**
-```
-Front: (mangiare) Ogni giorno io _____.
-Back:  mangio (revealed after you answer)
-```
+### What You're Importing
 
----
-
-## Step 6: Sync to AnkiWeb (Optional)
-
-To access your cards on mobile (AnkiDroid, AnkiWeb):
-
-### Create an AnkiWeb Account
-
-1. Go to [ankiweb.net](https://ankiweb.net)
-2. Click **"Sign up"**
-3. Create a free account (email + password)
-
-### Sync from Desktop
-
-1. In Anki Desktop: **Anki** → **Preferences** → **Network**
-2. Enter your AnkiWeb email and password
-3. Click **OK**
-4. Click the **Sync** button (top right of Anki window)
-5. Your deck will upload to AnkiWeb
-
-### Access on Mobile
-
-1. Install **AnkiDroid** (Android) or **AnkiWeb** (iOS)
-2. Log in with your AnkiWeb credentials
-3. Your "Italian Verbs" deck will appear
-4. Start studying on the go!
+- 57 definition cards (one per A1-A2 verb)
+- Format: `{{c1::mangiare}}` → `to eat`
+- Tests vocabulary recall alongside conjugation practice
 
 ---
 
-## Troubleshooting
+## Summary: Complete Learning System
 
-### "Import failed" error
+After all imports, you'll have **two decks**:
 
-**Problem:** Anki can't read the CSV file.
+### Deck 1: Italian Verbs (Conjugations)
+- Basic cards: Conjugation drilling
+- Cloze grid cards: Pattern recognition
+- Total: 36 cards per verb (or more if you add custom verbs)
 
-**Solution:**
-- Make sure the file is named exactly `flashcards_basic.csv` or `flashcards_cloze.csv`
-- Check that the file is in the correct folder
-- Try re-generating the files with the workflow
+### Deck 2: Italian Verbs — Definitions (Vocabulary)
+- Definition cards: Vocabulary recall
+- Total: 57 cards (all A1-A2 verbs)
 
-### Cloze cards show as blank
-
-**Problem:** The `{{c1::}}` syntax isn't rendering.
-
-**Solution:**
-- During import, make sure **"Allow HTML in fields"** is checked ✓
-- Delete the imported cards and re-import with the checkbox enabled
-
-### Cards appear in wrong deck
-
-**Problem:** Cards imported to the wrong deck.
-
-**Solution:**
-- During import, double-check the **"Deck"** dropdown
-- You can move cards after import: right-click card → "Change Deck"
-
-### Too many cards imported
-
-**Problem:** You see 19 or 20 cards instead of 18.
-
-**Solution:**
-- This happens if the CSV file has a header row
-- The workflow should not include headers, but if it does, delete the extra card manually
+**Together they create a complete learning system:**
+1. Learn what verbs mean (definitions)
+2. Learn how to conjugate them (basic + cloze grid)
+3. Master both forms and meanings through spaced repetition
 
 ---
 
@@ -160,10 +118,10 @@ To access your cards on mobile (AnkiDroid, AnkiWeb):
 - Spaced repetition works best with consistent daily review
 - Even 10 minutes a day is better than cramming
 
-### 2. Use Both Card Types
-- **Basic cards** drill individual forms
-- **Cloze cards** test contextual understanding
-- Together they reinforce conjugations from multiple angles
+### 2. Use Both Decks
+- **Conjugations deck** drills forms and patterns
+- **Definitions deck** reinforces vocabulary
+- Together they reinforce verbs from multiple angles
 
 ### 3. Generate Multiple Verbs
 - Start with Tier 1 verbs (see [VERB_LIST.md](VERB_LIST.md))
@@ -184,9 +142,10 @@ To access your cards on mobile (AnkiDroid, AnkiWeb):
 ## Next Steps
 
 1. **Generate more verbs** — Follow [VERB_LIST.md](VERB_LIST.md) for a structured learning path
-2. **Study consistently** — Review your deck daily
-3. **Track progress** — Anki shows your learning stats
-4. **Expand to other tenses** — Future versions will support conditional, subjunctive, etc.
+2. **Generate definitions deck** — `python3 run.py --definitions-batch`
+3. **Study consistently** — Review your decks daily
+4. **Track progress** — Anki shows your learning stats
+5. **Expand to other tenses** — Future versions will support conditional, subjunctive, etc.
 
 ---
 

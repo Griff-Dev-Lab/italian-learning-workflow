@@ -7,6 +7,8 @@ Usage:
     python run.py --verb mangiare --output ./my_output
     python run.py --verb mangiare --force
     python run.py --list-verbs
+    python run.py --definitions-batch
+    python run.py --definitions-batch --output ./my_output
 """
 
 import argparse
@@ -21,7 +23,7 @@ from src.conjugation_table_builder import ConjugationTableError
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Generate Anki flashcards for an Italian verb.",
+        description="Generate Anki flashcards for Italian verbs.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -30,6 +32,8 @@ Examples:
   python run.py --verb mangiare --output ./my_output
   python run.py --verb mangiare --force
   python run.py --list-verbs
+  python run.py --definitions-batch
+  python run.py --definitions-batch --output ./my_output
         """,
     )
     parser.add_argument(
@@ -58,6 +62,11 @@ Examples:
         action="store_true",
         help="List all verbs that have already been processed and exit.",
     )
+    parser.add_argument(
+        "--definitions-batch",
+        action="store_true",
+        help="Generate definition cloze cards for all verbs in verb_translations.json.",
+    )
 
     args = parser.parse_args()
 
@@ -73,9 +82,19 @@ Examples:
             print("No verbs processed yet.")
         return 0
 
+    # Handle --definitions-batch
+    if args.definitions_batch:
+        try:
+            orchestrator = WorkflowOrchestrator()
+            orchestrator.generate_definitions_batch(output_dir=args.output)
+            return 0
+        except Exception as exc:
+            print(f"\n❌ Definitions batch generation failed: {exc}", file=sys.stderr)
+            return 1
+
     if not args.verb:
         parser.print_help()
-        print("\nError: --verb is required.", file=sys.stderr)
+        print("\nError: --verb is required (or use --definitions-batch).", file=sys.stderr)
         return 1
 
     try:

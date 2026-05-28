@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 from .verb_conjugator import ConjugationData
 
 
@@ -12,11 +15,45 @@ class ConjugationTableError(Exception):
 class ConjugationTableBuilder:
     """Generates visual conjugation reference tables from conjugation data."""
 
+    def __init__(self) -> None:
+        """Initialize the builder and load verb translations."""
+        self.translations = self._load_translations()
+
+    def _load_translations(self) -> dict[str, str]:
+        """Load verb translations from verb_translations.json.
+        
+        Returns a dict mapping infinitive → English translation.
+        If file not found, returns empty dict (graceful fallback).
+        """
+        translations_path = Path(__file__).parent / "verb_translations.json"
+        
+        if not translations_path.exists():
+            return {}
+        
+        try:
+            with open(translations_path, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except (json.JSONDecodeError, IOError):
+            return {}
+
+    def _get_translation(self, infinitive: str) -> str | None:
+        """Get English translation for a verb, or None if not found."""
+        return self.translations.get(infinitive)
+
     def build_html_table(self, data: ConjugationData) -> str:
         """Generate an HTML conjugation table for the verb.
         
         Returns a complete HTML page with a styled conjugation table.
+        Includes English translation in the title if available.
         """
+        # Get translation if available
+        translation = self._get_translation(data.infinitive)
+        title_with_translation = (
+            f"{data.infinitive} ({translation})"
+            if translation
+            else data.infinitive
+        )
+        
         html = f"""<!DOCTYPE html>
 <html lang="it">
 <head>
@@ -116,7 +153,7 @@ class ConjugationTableBuilder:
 </head>
 <body>
     <div class="header">
-        <h1 class="verb-title">{data.infinitive}</h1>
+        <h1 class="verb-title">{title_with_translation}</h1>
         <p class="subtitle">Tavola di Coniugazione</p>
     </div>
 
