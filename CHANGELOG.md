@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.1] - 2026-06-12
+
+### Changed — Documentation & Specifications
+
+#### Steering Documentation
+- **`.kiro/steering/tech.md`** — Updated Anki CSV format descriptions for grid-based cloze and batch definitions
+- **`.kiro/steering/structure.md`** — Updated project structure, card data models, and architecture patterns
+- **`.kiro/steering/product.md`** — Already up-to-date with v1.3.0 features
+
+#### Specification Files
+- **`requirements.md`** — Updated glossary, requirements for grid-based cloze cards, batch definitions mode, English translations
+- **`design.md`** — Updated architecture diagram, pipeline workflows, data models, interfaces, and correctness properties
+
+#### Roadmap Refactor
+- **`docs/ROADMAP.md`** — Refactored from version-specific (v1.3.0, v1.4.0, etc.) to **Now/Next/Later** format
+  - **Now** — Current v1.3.0 features
+  - **Next** — High-priority features (Extended CEFR levels, batch processing)
+  - **Later** — Future exploration (LLM passages, customization, analytics, web/mobile)
+  - Removed specific dates and version numbers for flexibility
+  - More responsive to community feedback
+
+### Benefits
+
+- ✅ Steering docs and specs now fully synchronized with v1.3.0 implementation
+- ✅ Roadmap is more flexible and maintainable
+- ✅ No version drift or constant documentation updates needed
+- ✅ Clear separation of current, near-term, and future work
+
+### Technical Details
+
+- No code changes
+- Documentation and specification updates only
+- All changes committed and ready for release
+
+---
+
 ## [1.3.0] - 2026-06-11
 
 ### Added — Complete Learning System
