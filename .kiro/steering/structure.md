@@ -8,19 +8,21 @@ italian-learning-workflow/
 │
 ├── src/                        # All application logic
 │   ├── __init__.py
-│   ├── orchestrator.py         # Pipeline coordinator — wires all modules for a single verb run
+│   ├── orchestrator.py         # Pipeline coordinator — wires all modules for single-verb and batch workflows
 │   ├── verb_conjugator.py      # Generates conjugation data using mlconjug3 (100% accurate)
-│   ├── flashcard_builder.py    # Builds Basic and Cloze card rows from conjugation data
-│   ├── conjugation_table_builder.py  # Generates HTML conjugation reference tables
+│   ├── flashcard_builder.py    # Builds Basic and Cloze Grid card rows from conjugation data
+│   ├── conjugation_table_builder.py  # Generates HTML conjugation reference tables with English translations
 │   ├── vocab_tracker.py        # Tracks which verbs have been processed to prevent duplicates
-│   └── storage.py              # Creates output folders, writes CSV and HTML files
+│   ├── storage.py              # Creates output folders, writes CSV and HTML files
+│   └── verb_translations.json  # 57 A1-A2 Italian verbs with English translations
 │
 └── verb_artifacts/             # Generated output (gitignored except structure)
     ├── verb_log.json           # History of all runs (verb, timestamp, folder)
     ├── vocab_state.json        # Tracks which verbs have been used
+    ├── definitions_deck.csv    # Batch definitions file (57 definition cloze cards)
     └── mangiare/               # One folder per verb
-        ├── flashcards_basic.csv    # Basic note type — import into Anki as Basic
-        ├── flashcards_cloze.csv    # Cloze note type — import into Anki as Cloze
+        ├── flashcards_basic.csv    # Basic note type — 18 cards (6 present + 6 past + 6 future)
+        ├── flashcards_cloze.csv    # Cloze Grid note type — 3 cards (one per tense)
         └── conjugation_table.html  # Optional HTML conjugation table (--table flag)
 ```
 
@@ -36,12 +38,20 @@ italian-learning-workflow/
 ## Card Data Model
 
 **BasicCardRow** (for `flashcards_basic.csv`):
-- `front` — e.g. `mangiare (io, present)`
+- `front` — e.g. `mangiare (io, Presente Indicativo)`
 - `back` — e.g. `mangio`
+- 18 rows per verb (6 present + 6 past + 6 future)
 
-**ClozeCardRow** (for `flashcards_cloze.csv`):
-- `text` — e.g. `(mangiare) Ogni mattina io {{c1::mangio}}.`
-- `extra` — e.g. `mangiare — io, present` (shown on back as context)
+**ClozeGridCardRow** (for `flashcards_cloze.csv`):
+- `text` — HTML grid with all 6 persons, one form hidden as `{{c1::form}}`
+- `extra` — Complete grid with all forms revealed (shown on back)
+- 3 rows per verb (one per tense: Presente, Passato, Futuro)
+- Randomized hidden forms: no two cards hide the same person across 3 tenses
+
+**DefinitionClozeCardRow** (for `definitions_deck.csv` in batch mode):
+- `text` — `{{c1::mangiare}}`
+- `extra` — `to eat`
+- 57 rows total (one per A1-A2 verb)
 
 ## Code Style
 
@@ -64,14 +74,16 @@ italian-learning-workflow/
 
 **mlconjug3 Integration**:
 - `VerbConjugator` uses mlconjug3 as primary conjugation source
-- Template-based cloze sentence generation (no LLM)
+- Grid-based cloze card generation (no LLM, no sentence templates)
 - Deterministic auxiliary verb selection (avere vs essere)
-- Fallback patterns for edge cases
+- English translations from `verb_translations.json` (57 A1-A2 verbs)
+- Graceful fallback for verbs not in translation list (shows infinitive only)
 
 **No LLM Dependencies**:
 - All conjugations from linguistic library
-- All sentences from templates
+- All grids from structured conjugation data
 - All tables from structured data
+- All translations from JSON file
 - Zero network calls required
 
 ## Adding a New Output Type (future phases)

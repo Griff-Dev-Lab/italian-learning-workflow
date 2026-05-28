@@ -12,7 +12,7 @@ The Italian Learning Workflow is a Python CLI tool that generates Anki flashcard
 ┌──────────────────────────────────────────────────────────┐
 │                    run.py (CLI entry point)               │
 │  --verb <infinitive>  [--table]  [--force]  [--output]   │
-│  [--list-verbs]                                          │
+│  [--list-verbs]  [--definitions-batch]                   │
 └─────────────────────────┬────────────────────────────────┘
                           │
               ┌───────────▼───────────┐
@@ -23,7 +23,7 @@ The Italian Learning Workflow is a Python CLI tool that generates Anki flashcard
        ┌─────────▼──┐  ┌────▼──────────────┐
        │    Verb     │  │  Flashcard         │
        │ Conjugator  │  │  Builder           │
-       │             │  │                    │
+       │             │  │  (Grid-based)      │
        └─────────┬───┘  └────────────────────┘
                  │
        ┌─────────▼──────────┐
@@ -32,28 +32,47 @@ The Italian Learning Workflow is a Python CLI tool that generates Anki flashcard
        └────────────────────┘
 
   Optional (--table flag only):
-       ┌──────────────────────────┐
-       │  ConjugationTableBuilder  │
-       └──────────────────────────┘
+       ┌──────────────────────────────────┐
+       │  ConjugationTableBuilder          │
+       │  (with English translations)      │
+       └──────────────────────────────────┘
+
+  Batch mode (--definitions-batch flag only):
+       ┌──────────────────────────────────┐
+       │  DefinitionsBatchGenerator        │
+       │  (57 A1-A2 verbs)                 │
+       └──────────────────────────────────┘
 
   Supporting modules:
-       ┌──────────────┐   ┌──────────────┐
-       │ VocabTracker  │   │StorageManager│
-       └──────────────┘   └──────────────┘
+       ┌──────────────┐   ┌──────────────┐   ┌──────────────────┐
+       │ VocabTracker  │   │StorageManager│   │VerbTranslations  │
+       └──────────────┘   └──────────────┘   │(verb_translations│
+                                             │.json)            │
+                                             └──────────────────┘
 ```
 
 ---
 
 ## Pipeline — Step by Step
 
-When `python run.py --verb mangiare` is executed:
+### Single-Verb Mode
+When `python3 run.py --verb mangiare` is executed:
 
 ```
 [1/4] Check verb — VocabTracker.has_verb()
 [2/4] Conjugate  — VerbConjugator.conjugate()  →  ConjugationData
-[3/4] Build      — FlashcardBuilder.build_basic() + build_cloze()
+[3/4] Build      — FlashcardBuilder.build_basic() + build_cloze_grid()
 [4/4] Write      — StorageManager writes CSVs (+ HTML table if --table)
       Update     — VocabTracker.mark_verb() + save()
+```
+
+### Batch Definitions Mode
+When `python3 run.py --definitions-batch` is executed:
+
+```
+[1/2] Load       — Load all 57 A1-A2 verbs from verb_translations.json
+[2/2] Generate   — Create definitions_deck.csv with 57 cloze cards
+      Write      — StorageManager writes definitions_deck.csv to output root
 ```
 
 ---
@@ -68,11 +87,14 @@ Parses arguments via `argparse` and delegates to `WorkflowOrchestrator`. No busi
 
 | Flag | Type | Description |
 |---|---|---|
-| `--verb` | required | Italian infinitive, e.g. `mangiare` |
+| `--verb` | required* | Italian infinitive, e.g. `mangiare` |
+| `--definitions-batch` | flag | Generate definition cloze cards for all 57 A1-A2 verbs |
 | `--table` | flag | Generate HTML conjugation table |
 | `--output` | optional | Output root directory (default: `./verb_artifacts`) |
 | `--force` | flag | Bypass duplicate verb check |
 | `--list-verbs` | flag | Print all processed verbs and exit |
+
+*`--verb` is required unless `--definitions-batch` or `--list-verbs` is used.
 
 **Error handling:** catches `ConjugatorError`, `FlashcardError`, `ConjugationTableError`, `KeyboardInterrupt`, and a generic `Exception` fallback. All print user-friendly messages and exit with code 1.
 
@@ -153,11 +175,14 @@ All other verbs default to `avere` (`ho`/`hai`).
 - 6 past tense (io, tu, lui/lei, noi, voi, loro)
 - 6 future tense (io, tu, lui/lei, noi, voi, loro)
 
-Front format: `mangiare (io, present)` | Back: `mangio`
+Front format: `mangiare (io, Presente Indicativo)` | Back: `mangio`
 
-**`build_cloze(data) -> list[ClozeCardRow]`** — iterates `data.cloze_sentences`, creates one row per sentence. Raises `FlashcardError` if the list is empty.
-
-Extra field format: `mangiare — io, present`
+**`build_cloze_grid(data) -> list[ClozeGridCardRow]`** — produces exactly 3 rows (one per tense):
+- Each row displays an HTML grid with all 6 persons
+- One conjugated form is hidden as `{{c1::form}}` for the learner to fill in
+- Hidden forms are randomized: no two cards hide the same person across the 3 tenses
+- `text` field contains the grid with one hidden form
+- `extra` field contains the complete grid with all forms revealed (shown on back)
 
 **`to_basic_csv(rows) -> str`** and **`to_cloze_csv(rows) -> str`** — use Python's `csv.writer` with `QUOTE_MINIMAL` and `\n` line terminator. Returns UTF-8 string with header row.
 
@@ -165,14 +190,17 @@ Extra field format: `mangiare — io, present`
 
 ### `src/conjugation_table_builder.py` — ConjugationTableBuilder
 
-**Responsibility:** Generate a self-contained HTML reference table from `ConjugationData`.
+**Responsibility:** Generate a self-contained HTML reference table from `ConjugationData` with English translation.
 
-**`build_html_table(data) -> str`** — returns a complete HTML page string with:
+**`build_html_table(data, translation=None) -> str`** — returns a complete HTML page string with:
+- Title: `{infinitive} ({translation})` if translation available, else just `{infinitive}`
 - Inline CSS (no external stylesheets or fonts)
 - Three tense sections: Presente Indicativo, Passato Prossimo, Futuro Semplice
 - Person labels in the left column, conjugated forms in green on the right
 - Responsive layout, card-style sections with box shadows
 - Footer: "Generato con Italian Learning Workflow"
+
+Translations are loaded from `verb_translations.json` by the orchestrator and passed to this method.
 
 Raises `ConjugationTableError` on failure.
 
@@ -251,17 +279,17 @@ class ConjugationData:
 ```python
 @dataclass
 class BasicCardRow:
-    front: str   # "mangiare (io, present)"
+    front: str   # "mangiare (io, Presente Indicativo)"
     back: str    # "mangio"
 ```
 
-### `ClozeCardRow` (dataclass, `flashcard_builder.py`)
+### `ClozeGridCardRow` (dataclass, `flashcard_builder.py`)
 
 ```python
 @dataclass
-class ClozeCardRow:
-    text: str    # "(mangiare) Ogni giorno io {{c1::mangio}}."
-    extra: str   # "mangiare — io, present"
+class ClozeGridCardRow:
+    text: str    # HTML grid with one form hidden as {{c1::form}}
+    extra: str   # Complete HTML grid with all forms revealed
 ```
 
 ---
@@ -275,18 +303,20 @@ italian-learning-workflow/
 ├── requirements.txt                 # pyyaml, mlconjug3
 ├── src/
 │   ├── __init__.py
-│   ├── orchestrator.py              # Pipeline coordinator
-│   ├── verb_conjugator.py           # mlconjug3 engine + cloze templates
-│   ├── flashcard_builder.py         # CSV row builders
-│   ├── conjugation_table_builder.py # HTML table generator
+│   ├── orchestrator.py              # Pipeline coordinator (single-verb + batch modes)
+│   ├── verb_conjugator.py           # mlconjug3 engine
+│   ├── flashcard_builder.py         # CSV row builders (grid-based cloze)
+│   ├── conjugation_table_builder.py # HTML table generator (with translations)
 │   ├── vocab_tracker.py             # Duplicate verb prevention
-│   └── storage.py                   # File system operations
+│   ├── storage.py                   # File system operations
+│   └── verb_translations.json       # 57 A1-A2 Italian verbs with English translations
 └── verb_artifacts/                  # Generated output (gitignored)
     ├── verb_log.json                # Run history
     ├── vocab_state.json             # Processed verbs list
+    ├── definitions_deck.csv         # Batch definitions file (57 cards)
     └── mangiare/                    # One folder per verb run
-        ├── flashcards_basic.csv
-        ├── flashcards_cloze.csv
+        ├── flashcards_basic.csv     # 18 basic cards
+        ├── flashcards_cloze.csv     # 3 grid-based cloze cards
         └── conjugation_table.html   # Only present if --table was used
 ```
 
@@ -298,7 +328,7 @@ italian-learning-workflow/
 |---|---|---|
 | mlconjug3 not installed | `ConjugatorError` | Print install instructions, exit 1 |
 | mlconjug3 fails to conjugate verb | `ConjugatorError` | Print verb name + error, exit 1 |
-| No cloze sentences produced | `FlashcardError` | Print verb name, exit 1 |
+| Grid cloze generation fails | `FlashcardError` | Print verb name, exit 1 |
 | Table generation fails | `ConjugationTableError` | Print error, exit 1 |
 | Verb already processed | — | Warning message, clean exit 0 (bypass with `--force`) |
 | Partial folder on failure | — | `StorageManager.cleanup()` deletes folder before exit |
@@ -351,17 +381,17 @@ class VerbConjugator:
 ```python
 class FlashcardBuilder:
     def build_basic(self, data: ConjugationData) -> list[BasicCardRow]
-    def build_cloze(self, data: ConjugationData) -> list[ClozeCardRow]
-        # Raises FlashcardError if cloze_sentences is empty
+    def build_cloze_grid(self, data: ConjugationData) -> list[ClozeGridCardRow]
+        # Raises FlashcardError if grid generation fails
     def to_basic_csv(self, rows: list[BasicCardRow]) -> str
-    def to_cloze_csv(self, rows: list[ClozeCardRow]) -> str
+    def to_cloze_csv(self, rows: list[ClozeGridCardRow]) -> str
 ```
 
 ### ConjugationTableBuilder
 
 ```python
 class ConjugationTableBuilder:
-    def build_html_table(self, data: ConjugationData) -> str
+    def build_html_table(self, data: ConjugationData, translation: str | None = None) -> str
         # Raises ConjugationTableError on failure
 ```
 
@@ -416,15 +446,15 @@ Every conjugated form in the output must match the mlconjug3 source exactly — 
 
 The auxiliary verb (avere/essere) must be correct for every verb — determined by the `ESSERE_VERBS` lookup set. Verbs not in the set default to avere.
 
-### Property 3: Unambiguous cloze cards
-**Validates: Requirements 3.1, 3.2, 3.3**
+### Property 3: Grid-based cloze randomization
+**Validates: Requirements 3.2, 3.3**
 
-Cloze sentences must always include the subject pronoun so only one conjugated form is correct. The infinitive prefix `(mangiare)` must appear on every cloze card to eliminate verb ambiguity.
+Grid-based cloze cards must randomize hidden forms so no two cards hide the same person across the 3 tenses. Each grid must display all 6 persons with exactly one form hidden as `{{c1::form}}`.
 
 ### Property 4: Correct card counts
 **Validates: Requirements 1.2, 1.3**
 
-Basic CSV must always contain exactly 18 rows (6 present + 6 past + 6 future). Cloze CSV must always contain exactly 18 rows (6 present + 6 past + 6 future).
+Basic CSV must always contain exactly 18 rows (6 present + 6 past + 6 future). Cloze CSV must always contain exactly 3 rows (one per tense with grid format).
 
 ### Property 5: No folder overwrites
 **Validates: Requirements 6.2**

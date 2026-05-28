@@ -15,18 +15,37 @@
 - Provides perfect present, past (passato prossimo), and future forms
 
 ## Anki CSV Format
+
+### Single-Verb Mode
 The tool produces two CSV files per run — one for Basic note type, one for Cloze note type:
 
 **Basic notes** (`flashcards_basic.csv`):
 - Columns: `front`, `back`
+- 18 rows per verb (6 present + 6 past + 6 future)
+- Front format: `{infinitive} ({person}, {tense})` — e.g. `mangiare (io, Presente Indicativo)`
+- Back: conjugated form — e.g. `mangio`
 - Imported into Anki as note type: Basic
-- Deck tag included via Anki import dialog
+- Deck: Italian Verbs
 
-**Cloze notes** (`flashcards_cloze.csv`):
+**Cloze Grid notes** (`flashcards_cloze.csv`):
 - Columns: `text`, `extra`
-- `text` contains the sentence with `{{c1::answer}}` syntax
-- Infinitive context: "(mangiare) Ogni giorno io {{c1::mangio}}."
+- 3 rows per verb (one per tense: present, past, future)
+- `text` contains HTML grid with all 6 persons, one form hidden as `{{c1::form}}`
+- Randomized hidden forms (no two cards hide the same person)
+- `extra` field shows complete grid with all forms revealed
 - Imported into Anki as note type: Cloze
+- Deck: Italian Verbs
+
+### Batch Definitions Mode
+When using `--definitions-batch` flag:
+
+**Definition cloze notes** (`definitions_deck.csv`):
+- Columns: `text`, `extra`
+- 57 rows (one per A1-A2 verb)
+- `text`: `{{c1::mangiare}}`
+- `extra`: `to eat`
+- Imported into Anki as note type: Cloze
+- Deck: Italian Verbs — Definitions
 
 ## Optional Conjugation Table
 - **HTML output**: Beautiful, printable conjugation reference
@@ -47,6 +66,18 @@ python3 run.py --verb mangiare --table
 
 # Custom output directory
 python3 run.py --verb mangiare --output ./my_output
+
+# Force regeneration (bypass duplicate check)
+python3 run.py --verb mangiare --force
+
+# List all processed verbs
+python3 run.py --list-verbs
+
+# Generate definition cloze cards for all 57 A1-A2 verbs
+python3 run.py --definitions-batch
+
+# Generate definitions to custom output directory
+python3 run.py --definitions-batch --output ./my_output
 
 # First-time setup
 pip install -r requirements.txt

@@ -4,25 +4,57 @@ Italian Learning Workflow is an Anki flashcard generator focused on Italian verb
 
 ## Core Features — 100% LLM-Free
 
-A single CLI run for one verb produces two types of cards:
+A single CLI run for one verb produces three types of cards:
 
 **Basic cards** — one conjugated form per card, drills recall of a specific form:
 - All 6 present tense forms (io, tu, lui/lei, noi, voi, loro) — one card each
 - All 6 past tense forms (passato prossimo) — one card each
 - All 6 future tense forms (futuro semplice) — one card each
+- Explicit Italian tense names (Presente Indicativo, Passato Prossimo, Futuro Semplice)
 - 18 cards per verb
 
-**Cloze cards** — verb used in context with clear infinitive reference:
-- Subject pronoun is always explicit so only one conjugation is correct
-- Infinitive shown in parentheses: "(mangiare) Ogni giorno io _____"
-- All 6 persons for present, past, and future tenses
-- 18 cards per verb
+**Cloze grid cards** — all 6 persons in grid format with one hidden form:
+- Grid showing all 6 persons with one form hidden as cloze
+- Randomized hidden form (no two cards hide the same person)
+- One card per tense (Presente, Passato, Futuro)
+- Tests pattern recognition and conjugation accuracy
+- 3 cards per verb
 
-All cards go into a single **Verbs** deck.
+**Definition cards** — vocabulary learning (batch mode):
+- Generate all 57 A1-A2 verb definitions at once with `--definitions-batch`
+- One cloze card per verb: `{{c1::mangiare}}` → `to eat`
+- Import as separate "Italian Verbs — Definitions" deck
+- 57 cards total (one-time generation)
+
+All cards go into **two decks**:
+- **Italian Verbs** — Conjugation drilling and pattern recognition
+- **Italian Verbs — Definitions** — Vocabulary learning
+
+## Complete Learning System
+
+Three complementary card types for comprehensive learning:
+
+| Card Type | Purpose | Count | Deck |
+|-----------|---------|-------|------|
+| **Basic** | Conjugation recall | 18/verb | Italian Verbs |
+| **Cloze Grid** | Pattern recognition | 3/verb | Italian Verbs |
+| **Definition** | Vocabulary | 1/verb | Italian Verbs — Definitions |
+
+**Total: 1,254 cards for 57 A1-A2 verbs**
 
 ## Optional Conjugation Table
 
-Running with `--table` generates a beautiful HTML conjugation reference table showing all forms in a clean, printable format. Perfect for study and review.
+Running with `--table` generates a beautiful HTML conjugation reference table showing all forms in a clean, printable format. Includes English translation in the title (e.g., "mangiare (to eat)"). Perfect for study and review.
+
+## Extended A1-A2 Coverage
+
+57 verified Italian verbs organized by priority:
+- **Tier 1:** Core 10 (essere, avere, fare, andare, dire, potere, volere, dovere, sapere, stare)
+- **Tier 2:** High-frequency 10 (mangiare, bere, venire, uscire, prendere, mettere, dare, vedere, guardare, parlare)
+- **Tier 3:** Life/work 10 (vivere, abitare, lavorare, trovare, sentire, chiedere, arrivare, partire, comprare, capire)
+- **High-priority 4:** (piacere, rimanere, tornare, passare)
+- **Medium-priority 13:** (entrare, portare, lasciare, seguire, tenere, aprire, chiudere, correre, camminare, nuotare, studiare, giocare, suonare)
+- **Lower-priority 10:** (spedire, preferire, pulire, costare, viaggiare, descrivere, decidere, provare, ricordare, dimenticare)
 
 ## Key Benefits
 
@@ -30,8 +62,9 @@ Running with `--table` generates a beautiful HTML conjugation reference table sh
 - **LLM-Free**: No API keys, internet, or AI services required
 - **Offline Ready**: Works completely offline
 - **Handles All Verbs**: Regular, irregular, avere/essere auxiliaries
-- **Clear Context**: Cloze cards show infinitive to eliminate ambiguity
+- **Complete Learning System**: Conjugations + Vocabulary + Pattern Recognition
 - **Fast Generation**: No API calls needed
+- **Extensible**: Users can add custom verbs and translations
 
 ## CLI Usage
 
@@ -50,6 +83,12 @@ python3 run.py --verb mangiare --force
 
 # List processed verbs
 python3 run.py --list-verbs
+
+# Generate definition cloze cards for all 57 A1-A2 verbs
+python3 run.py --definitions-batch
+
+# Generate definitions to custom output directory
+python3 run.py --definitions-batch --output ./my_output
 ```
 
 ## Accuracy Guarantee
@@ -83,3 +122,13 @@ Every conjugation is verified by mlconjug3, the same library used by professiona
 - Support for API-driven models (OpenAI, Google Gemini)
 - Passages built around the verb's conjugated forms for contextual reinforcement
 - Configurable via `config.yaml` — switch provider without code changes
+
+### 🔧 Batch Processing & Automation
+- Generate flashcards for multiple verbs in a single command
+- Predefined batches (tier1, tier2, tier3, all)
+- Custom batch files
+
+### 🌍 Web & Mobile Platforms
+- Web interface for flashcard generation
+- Mobile app for offline review
+- Cloud sync across devices

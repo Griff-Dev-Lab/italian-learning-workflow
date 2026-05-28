@@ -8,14 +8,17 @@ The Italian Learning Workflow is a CLI tool for A1–A2 Italian learners that ge
 
 - **Verb**: An Italian verb infinitive provided by the user (e.g. `mangiare`, `dormire`, `andare`).
 - **Conjugation**: The inflected forms of a verb across persons and tenses.
-- **Basic Card**: An Anki flashcard with a prompt on the front (e.g. `mangiare (io, present)`) and the conjugated form on the back (e.g. `mangio`).
-- **Cloze Card**: An Anki flashcard where a conjugated form is blanked out in a sentence (e.g. `(mangiare) Ogni giorno io {{c1::mangio}}.`).
-- **Conjugation Table**: An HTML file showing all conjugated forms for a verb in a clean reference layout.
+- **Basic Card**: An Anki flashcard with a prompt on the front (e.g. `mangiare (io, Presente Indicativo)`) and the conjugated form on the back (e.g. `mangio`).
+- **Cloze Grid Card**: An Anki flashcard displaying all 6 persons in a grid format with one conjugated form hidden as `{{c1::form}}` for the learner to fill in.
+- **Definition Card**: An Anki cloze card for vocabulary learning (e.g. `{{c1::mangiare}}` → `to eat`).
+- **Conjugation Table**: An HTML file showing all conjugated forms for a verb in a clean reference layout with English translation in the title.
 - **Verb Folder**: A directory named after the verb (e.g. `verb_artifacts/mangiare/`) that stores all generated artifacts.
 - **mlconjug3**: A Python linguistic library providing accurate Italian verb conjugations.
 - **Passato Prossimo**: Italian compound past tense (e.g. `ho mangiato`, `sono andato`).
 - **Futuro Semplice**: Italian simple future tense (e.g. `mangerò`, `dormirò`).
+- **Presente Indicativo**: Italian simple present tense (e.g. `mangio`, `dormo`).
 - **Avere/Essere**: The two Italian auxiliary verbs used in passato prossimo — most verbs use `avere`, motion/state verbs use `essere`.
+- **A1–A2 Verbs**: 57 verified Italian verbs covering beginner to elementary proficiency levels.
 
 ---
 
@@ -42,27 +45,28 @@ The Italian Learning Workflow is a CLI tool for A1–A2 Italian learners that ge
 
 #### Acceptance Criteria
 
-1. EACH Basic card front SHALL follow the format: `{infinitive} ({person}, {tense})` — e.g. `mangiare (io, present)`.
-2. EACH Basic card back SHALL contain only the conjugated form — e.g. `mangio`.
-3. THE `flashcards_basic.csv` SHALL use columns: `front`, `back`.
-4. THE file SHALL use UTF-8 encoding to support Italian diacritical characters (è, à, ò, ù, ì, etc.).
-5. THE file SHALL conform to RFC 4180 CSV formatting.
+1. EACH Basic card front SHALL follow the format: `{infinitive} ({person}, {tense})` — e.g. `mangiare (io, Presente Indicativo)`.
+2. THE tense names SHALL be explicit Italian names: `Presente Indicativo`, `Passato Prossimo`, `Futuro Semplice`.
+3. EACH Basic card back SHALL contain only the conjugated form — e.g. `mangio`.
+4. THE `flashcards_basic.csv` SHALL use columns: `front`, `back`.
+5. THE file SHALL use UTF-8 encoding to support Italian diacritical characters (è, à, ò, ù, ì, etc.).
+6. THE file SHALL conform to RFC 4180 CSV formatting.
 
 ---
 
-### Requirement 3: Cloze Flashcard Format
+### Requirement 3: Cloze Grid Flashcard Format
 
-**User Story:** As a language learner, I want Cloze flashcards that test me in context, so that I can practise conjugating verbs within sentences.
+**User Story:** As a language learner, I want Cloze Grid flashcards that test pattern recognition and conjugation accuracy, so that I can learn all forms in context without memorizing phrases.
 
 #### Acceptance Criteria
 
-1. EACH Cloze card `text` field SHALL include the verb infinitive in parentheses at the start — e.g. `(mangiare) Ogni giorno io {{c1::mangio}}.`
-2. THE infinitive prefix SHALL make the target verb unambiguous — the learner knows which verb to conjugate.
-3. EACH sentence SHALL include an explicit subject pronoun (io, tu, lui, lei, noi, voi, loro) to ensure only one conjugated form is correct.
-4. THE `{{c1::answer}}` syntax SHALL wrap the conjugated form for Anki cloze deletion.
+1. THE `flashcards_cloze.csv` SHALL contain exactly 3 rows per verb: one for Presente Indicativo, one for Passato Prossimo, one for Futuro Semplice.
+2. EACH Cloze Grid card `text` field SHALL display an HTML grid showing all 6 persons (io, tu, lui/lei, noi, voi, loro) with one conjugated form hidden as `{{c1::form}}`.
+3. THE hidden form SHALL be randomized across the 3 cards — no two cards SHALL hide the same person.
+4. EACH Cloze Grid card `extra` field SHALL display the complete grid with all forms revealed (shown on the back).
 5. THE `flashcards_cloze.csv` SHALL use columns: `text`, `extra`.
-6. THE `extra` field SHALL contain the label — e.g. `mangiare — io, present`.
-7. Sentences SHALL use simple, natural Italian templates appropriate for A1–A2 level.
+6. THE file SHALL use UTF-8 encoding to support Italian diacritical characters.
+7. THE file SHALL conform to RFC 4180 CSV formatting.
 
 ---
 
@@ -80,17 +84,20 @@ The Italian Learning Workflow is a CLI tool for A1–A2 Italian learners that ge
 
 ---
 
-### Requirement 5: Conjugation Table (Optional)
+### Requirement 5: Conjugation Table with English Translation (Optional)
 
-**User Story:** As a language learner, I want an optional HTML conjugation reference table, so that I can review all forms at a glance.
+**User Story:** As a language learner, I want an optional HTML conjugation reference table with English translation, so that I can review all forms at a glance and understand what the verb means.
 
 #### Acceptance Criteria
 
 1. WHEN the `--table` flag is provided, THE Workflow SHALL generate a `conjugation_table.html` file in the verb folder.
-2. THE table SHALL display all conjugated forms grouped by tense: Presente Indicativo, Passato Prossimo, Futuro Semplice.
-3. THE table SHALL be a self-contained HTML file that opens in any browser without internet access.
-4. ALL forms in the table SHALL be sourced from mlconjug3 — identical to the flashcard data.
-5. THE table SHALL be visually clean and printable.
+2. THE table title SHALL display the verb with English translation — e.g. `mangiare (to eat)`.
+3. IF the verb is in the A1–A2 list, THE translation SHALL be sourced from `verb_translations.json`.
+4. IF the verb is not in the list, THE title SHALL display only the infinitive — e.g. `dormire`.
+5. THE table SHALL display all conjugated forms grouped by tense: Presente Indicativo, Passato Prossimo, Futuro Semplice.
+6. THE table SHALL be a self-contained HTML file that opens in any browser without internet access.
+7. ALL forms in the table SHALL be sourced from mlconjug3 — identical to the flashcard data.
+8. THE table SHALL be visually clean and printable.
 
 ---
 
@@ -132,6 +139,41 @@ The Italian Learning Workflow is a CLI tool for A1–A2 Italian learners that ge
 3. THE CLI SHALL accept `--output` as an optional argument to specify the output directory.
 4. THE CLI SHALL accept `--force` as an optional flag to bypass duplicate verb checking.
 5. THE CLI SHALL accept `--list-verbs` as an optional flag to display all processed verbs and exit.
-6. THE CLI SHALL display user-friendly error messages for all known failure modes.
-7. THE CLI SHALL exit with code 0 on success and code 1 on any error.
-8. NO API keys, environment variables, or external services SHALL be required to run the tool.
+6. THE CLI SHALL accept `--definitions-batch` as an optional flag to generate definition cloze cards for all 57 A1–A2 verbs.
+7. THE CLI SHALL display user-friendly error messages for all known failure modes.
+8. THE CLI SHALL exit with code 0 on success and code 1 on any error.
+9. NO API keys, environment variables, or external services SHALL be required to run the tool.
+
+---
+
+### Requirement 9: Batch Definitions Mode
+
+**User Story:** As a language learner, I want to generate vocabulary cloze cards for all 57 A1–A2 verbs at once, so that I can build a comprehensive vocabulary deck alongside conjugation drilling.
+
+#### Acceptance Criteria
+
+1. WHEN the `--definitions-batch` flag is provided, THE Workflow SHALL generate a single file: `definitions_deck.csv`.
+2. THE file SHALL contain exactly 57 rows: one definition cloze card per A1–A2 verb.
+3. EACH card `text` field SHALL contain: `{{c1::infinitive}}` — e.g. `{{c1::mangiare}}`.
+4. EACH card `extra` field SHALL contain the English translation — e.g. `to eat`.
+5. THE file SHALL use columns: `text`, `extra`.
+6. THE file SHALL use UTF-8 encoding.
+7. THE file SHALL conform to RFC 4180 CSV formatting.
+8. THE `--definitions-batch` flag SHALL work with the `--output` flag to specify a custom output directory.
+9. THE Workflow SHALL NOT interfere with single-verb generation — both modes work independently.
+
+---
+
+### Requirement 10: Extended A1–A2 Verb Coverage
+
+**User Story:** As a language learner, I want access to a comprehensive list of 57 A1–A2 verbs, so that I can build a complete foundation for beginner Italian.
+
+#### Acceptance Criteria
+
+1. THE Workflow SHALL support all 57 A1–A2 verbs defined in `verb_translations.json`.
+2. THE 57 verbs SHALL be organized by priority: Tier 1 (10), Tier 2 (10), Tier 3 (10), High-Priority (4), Medium-Priority (13), Lower-Priority (10).
+3. EACH verb SHALL have a verified English translation in `verb_translations.json`.
+4. THE Workflow SHALL work for ANY valid Italian verb infinitive, not just the 57 A1–A2 verbs.
+5. IF a verb is not in `verb_translations.json`, THE Workflow SHALL still generate 100% accurate conjugations and cards.
+6. THE HTML conjugation table SHALL display the English translation if available, or show only the infinitive if not.
+7. THE batch definitions mode SHALL generate cards only for the 57 A1–A2 verbs in `verb_translations.json`.
