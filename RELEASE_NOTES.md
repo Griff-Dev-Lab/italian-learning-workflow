@@ -1,53 +1,34 @@
-# Release Notes — v1.3.0
+# Release Notes
 
-**Release Date:** June 11, 2026
+This file has been deprecated in favor of GitHub Releases.
 
-## Overview
+**All current and past release notes are available on GitHub:**
 
-v1.3.0 introduces a **complete learning system** with three complementary card types and a batch definitions mode. This release focuses on pedagogical quality, pattern recognition, and vocabulary learning alongside conjugation drilling.
+👉 [Italian Learning Workflow Releases](https://github.com/Griff-Dev-Lab/italian-learning-workflow/releases)
+
+## Latest Release
+
+- **v1.3.2** — Gender/number agreement for essere-auxiliary verbs + definition cards fix
+  - [View v1.3.2 Release](https://github.com/Griff-Dev-Lab/italian-learning-workflow/releases/tag/v1.3.2)
+
+## Previous Releases
+
+- **v1.3.1** — Documentation and specification updates
+- **v1.3.0** — Grid-based cloze cards, batch definitions mode, extended A1-A2 coverage
+- **v1.2.1** — Comprehensive documentation
+- **v1.2.0** — All 6 persons for past and future tenses
+- **v1.0.0** — Initial release
+
+For detailed information about any release, visit the [Releases page](https://github.com/Griff-Dev-Lab/italian-learning-workflow/releases).
 
 ---
 
-## What's New
+**Why the change?**
+- Centralized release information on GitHub makes it easier to maintain
+- GitHub Releases include binary assets, git commits, and collaborative discussion
+- Single source of truth prevents documentation drift
+- Release notes per version are kept in CHANGELOG.md for version history
 
-### 🎯 Grid-Based Cloze Cards (Major Improvement)
-
-**Before (v1.2.x):**
-- 18 cloze cards per verb
-- Sentence-based format: `(mangiare) Ogni giorno io _____`
-- Risk of phrase memorization instead of conjugation learning
-
-**After (v1.3.0):**
-- 3 cloze cards per verb
-- Grid format showing all 6 persons with one hidden
-- Randomized hidden forms (no two cards hide the same person)
-- **Focus on pattern recognition and conjugation accuracy**
-
-**Example:**
-
-```
-Front (Presente Indicativo):
-| io | {{c1::mangio}} |
-| tu | mangi |
-| lui/lei | mangia |
-| noi | mangiamo |
-| voi | mangiate |
-| loro | mangiano |
-
-Back (Revealed):
-| io | mangio |
-| tu | mangi |
-| lui/lei | mangia |
-| noi | mangiamo |
-| voi | mangiate |
-| loro | mangiano |
-```
-
-### 📚 Explicit Italian Tense Names
-
-**Before:**
-```
-mangiare (io, present)
 ```
 
 **After:**

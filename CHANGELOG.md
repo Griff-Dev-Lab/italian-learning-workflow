@@ -36,6 +36,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **After:** Correct agreement for all 6 persons with both genders shown
 - **Avere-auxiliary verbs:** Correctly show invariant forms (no gender agreement needed)
 
+#### Definition Cards Format
+- **Changed definition cards from Cloze to Basic format** — simpler and more reliable
+- **Before:** `{{c1::mangiare}}` format showed raw syntax in Anki
+- **After:** Plain Basic card format: Front `to eat`, Back `mangiare`
+- **Import instruction:** Set field separator to **Comma** during Anki import
+- **Result:** 57 definition cards for vocabulary learning work perfectly
+
 ### Technical Details
 
 #### Modified Files
@@ -44,6 +51,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Implemented special logic for 10 essere-auxiliary verbs
   - Proper masculine/feminine form generation with slash notation
   - Avere-auxiliary verbs continue to show invariant past participles
+- `src/orchestrator.py`:
+  - Updated `generate_definitions_batch()` to generate plain Basic format (no cloze syntax)
+- Documentation:
+  - `docs/ANKI_SETUP.md`: Added field separator guidance for definition cards import
+  - `tech.md`, `structure.md`, `product.md`: Updated definition card format documentation
 
 #### Compatibility
 - ✅ **Flashcard builder** — Accepts slash-separated forms as-is, no changes needed

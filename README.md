@@ -23,10 +23,11 @@ For each verb (e.g. `mangiare`), the tool creates:
   - Includes English translation in title (if verb is in the list)
   - Generated with `--table` flag
 
-- **Definition cloze cards** (`definitions_deck.csv`) — optional vocabulary learning
+- **Definition flashcards** (`definitions_deck.csv`) — optional vocabulary learning
   - Generate all 57 A1-A2 verb definitions at once with `--definitions-batch`
-  - One cloze card per verb: `{{c1::mangiare}}` → `to eat`
+  - One Basic card per verb: Front `to eat`, Back `mangiare`
   - Import as separate "Italian Verbs — Definitions" deck in Anki
+  - Set field separator to **Comma** during import
 
 ## Why 100% Accurate?
 
