@@ -89,7 +89,27 @@ Each run creates a folder like `verb_artifacts/mangiare/` containing:
 
 **Batch definitions mode** creates:
 
-- `definitions_deck.csv` — Import into Anki as **Cloze** note type (57 cards, all A1-A2 verbs)
+- `definitions_deck.csv` — Import into Anki as **Basic** note type (57 cards, all A1-A2 verbs)
+  - Front: English translation, Back: Italian infinitive
+  - Set field separator to **Comma** during import
+
+## Complete A1-A2 Coverage
+
+The tool includes **57 verified Italian verbs** covering the complete A1–A2 proficiency level:
+
+- **Tier 1:** Essential verbs (essere, avere, fare, andare, etc.)
+- **Tier 2:** High-frequency verbs (mangiare, bere, venire, etc.)
+- **Tier 3:** Life/work verbs (vivere, abitare, lavorare, etc.)
+- **Additional priority verbs:** piacere, rimanere, tornare, and more
+
+Generate all 57 verb definitions at once with:
+```bash
+python3 run.py --definitions-batch
+```
+
+This creates a vocabulary deck for learning what each verb means alongside conjugation practice.
+
+---
 
 ## Verbs Beyond the Recommended List
 
@@ -165,28 +185,35 @@ italian-learning-workflow/
 
 ## Roadmap
 
-See the complete [Roadmap](docs/ROADMAP.md) for detailed plans on:
+See the complete [Roadmap](docs/ROADMAP.md) for detailed planning. Current status:
 
-### 🎓 Extended CEFR Levels (B1, B2, C1, C2)
-Expand beyond A1–A2 to cover intermediate and advanced learners with additional tenses and moods.
+### 🎯 Now — Current Features (v1.3.2)
 
-### 📚 Extended Tenses and Moods
-- **Imperfetto** — imperfect past, essential for A2/B1 storytelling
-- **Condizionale** — conditional mood ("I would eat")
-- **Congiuntivo** — subjunctive mood, required for B2+
-- **Imperativo** — commands and requests
+- ✅ Grid-based cloze cards for pattern recognition
+- ✅ Gender/number agreement for essere-auxiliary verbs
+- ✅ 57 A1-A2 verb definitions deck
+- ✅ English translations in conjugation tables
+- ✅ Batch definitions mode
+- ✅ Optional conjugation reference tables (HTML)
 
-### 📖 LLM-Powered Reading Passages
-Optional `--passage` flag to generate contextual reading texts built around the verb's conjugated forms. Will support:
-- Local models via **Ollama** (free, fully offline)
-- API-driven models via **OpenAI** or **Google Gemini**
-- Configurable via `config.yaml` — switch provider without code changes
+### 🔜 Next — High Priority Features
 
-### 🔧 Batch Processing & Automation
-Generate flashcards for multiple verbs in a single command.
+- 📚 **Extended CEFR Levels (B1, B2)** — Additional tenses and moods
+  - Imperfetto (imperfect past)
+  - Condizionale (conditional)
+  - Congiuntivo (subjunctive)
+- 🔧 **Batch Processing** — Generate flashcards for multiple verbs at once
+- 📖 **Configurable Output** — Custom card counts and tense combinations
 
-### 🌍 Web & Mobile Platforms
-Bring the workflow to web and mobile for seamless learning across devices.
+### 🚀 Later — Future Exploration
+
+- 📖 **LLM-Powered Reading Passages** — Optional contextual texts (Ollama or API)
+- 🎨 **Customization** — User-configurable card formats and themes
+- 📊 **Analytics** — Track learning progress and weak areas
+- 🌍 **Web & Mobile** — Browser and mobile app interfaces
+- ☁️ **Cloud Sync** — Sync across devices via AnkiWeb
+
+For detailed discussion on each feature, see the complete [Roadmap](docs/ROADMAP.md).
 
 ---
 

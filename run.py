@@ -65,7 +65,7 @@ Examples:
     parser.add_argument(
         "--definitions-batch",
         action="store_true",
-        help="Generate definition cloze cards for all verbs in verb_translations.json.",
+        help="Generate definition Basic cards for all 57 A1-A2 verbs in verb_translations.json.",
     )
 
     args = parser.parse_args()
