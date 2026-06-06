@@ -48,9 +48,9 @@ italian-learning-workflow/
 - 3 rows per verb (one per tense: Presente, Passato, Futuro)
 - Randomized hidden forms: no two cards hide the same person across 3 tenses
 
-**DefinitionClozeCardRow** (for `definitions_deck.csv` in batch mode):
-- `text` — `{{c1::mangiare}}`
-- `extra` — `to eat`
+**DefinitionBasicCardRow** (for `definitions_deck.csv` in batch mode):
+- `front` — English translation (e.g., `to eat`)
+- `back` — Italian infinitive (e.g., `mangiare`)
 - 57 rows total (one per A1-A2 verb)
 
 ## Code Style

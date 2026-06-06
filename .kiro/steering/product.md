@@ -24,7 +24,7 @@ A single CLI run for one verb produces three types of cards:
 
 **Definition cards** — vocabulary learning (batch mode):
 - Generate all 57 A1-A2 verb definitions at once with `--definitions-batch`
-- One cloze card per verb: `{{c1::mangiare}}` → `to eat`
+- One Basic card per verb: Front `to eat`, Back `mangiare`
 - Import as separate "Italian Verbs — Definitions" deck
 - 57 cards total (one-time generation)
 

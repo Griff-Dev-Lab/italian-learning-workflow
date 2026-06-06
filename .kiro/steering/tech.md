@@ -41,12 +41,12 @@ The tool produces two CSV files per run — one for Basic note type, one for Clo
 ### Batch Definitions Mode
 When using `--definitions-batch` flag:
 
-**Definition cloze notes** (`definitions_deck.csv`):
-- Columns: `text`, `extra`
+**Definition Basic notes** (`definitions_deck.csv`):
+- Columns: `front`, `back`
 - 57 rows (one per A1-A2 verb)
-- `text`: `{{c1::mangiare}}`
-- `extra`: `to eat`
-- Imported into Anki as note type: Cloze
+- `front`: English translation (e.g., `to eat`)
+- `back`: Italian infinitive (e.g., `mangiare`)
+- Imported into Anki as note type: Basic
 - Deck: Italian Verbs — Definitions
 
 ## Optional Conjugation Table

@@ -118,10 +118,11 @@ class WorkflowOrchestrator:
         print(f"[2/2] Building definition cards...")
         definition_rows = []
         for infinitive, translation in sorted(translations.items()):
-            # Format: front=translation, back={{c1::infinitive}}
+            # Format: front=translation, back=infinitive
             # Learn Italian verb from English definition
+            # Use Basic card format (no cloze syntax) for cleaner import
             front = translation
-            back = f"{{{{c1::{infinitive}}}}}"
+            back = infinitive
             definition_rows.append((front, back))
 
         # Write to CSV
@@ -143,6 +144,6 @@ class WorkflowOrchestrator:
 
         print(f"\n✅ Done! Definitions deck created: {definitions_file}")
         print(f"   Total cards: {len(definition_rows)}")
-        print(f"   Import into Anki as Cloze note type")
+        print(f"   Import into Anki as Basic note type (NOT Cloze)")
         print(f"   Create deck: 'Italian Verbs — Definitions'")
 

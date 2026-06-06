@@ -85,7 +85,7 @@ This keeps all your Italian verb cards organized in one place.
 
 ## Step 8: Import Definition Cards (Optional)
 
-For vocabulary reinforcement, you can also import definition cloze cards:
+For vocabulary reinforcement, you can also import definition cards:
 
 1. Generate the definitions deck (one-time):
    ```bash
@@ -95,16 +95,27 @@ For vocabulary reinforcement, you can also import definition cloze cards:
 2. Go to **File** → **Import**
 3. Select **`definitions_deck.csv`** from `verb_artifacts/`
 4. In the import dialog:
-   - **Note Type**: Select **"Cloze"**
+   - **Note Type**: Select **"Basic"** (NOT Cloze)
    - **Deck**: Create new deck **"Italian Verbs — Definitions"**
-   - **Allow HTML in fields**: Check ✓
+   - **Field separator**: Set to **Comma `,`** (this is crucial!)
    - Click **Import**
 5. You should see: **"Imported 57 notes."**
+
+### ⚠️ Important: Field Separator Setting
+
+The **field separator MUST be set to comma (`,`)** for the definitions deck to import correctly:
+- Each line has format: `English definition,Italian verb`
+- Example: `to eat,mangiare`
+- Anki needs to know the comma separates the front and back fields
+- If you skip this step, the entire line will import as the front field only
 
 ### What You're Importing
 
 - 57 definition cards (one per A1-A2 verb)
-- Format: `{{c1::mangiare}}` → `to eat`
+- **Format:** Front shows English definition → Back shows Italian verb
+- Example:
+  - Front: `to eat`
+  - Back: `mangiare`
 - Tests vocabulary recall alongside conjugation practice
 
 ---
@@ -120,7 +131,7 @@ After all imports, you'll have **two decks**:
 
 ### Deck 2: Italian Verbs — Definitions (Vocabulary)
 - Definition cards: 57 total (one per A1-A2 verb)
-- Format: Cloze cards testing English → Italian recall
+- Format: Basic cards testing English → Italian recall
 - Tests vocabulary knowledge
 
 **Together they create a complete learning system:**
