@@ -9,6 +9,8 @@ A single CLI run for one verb produces three types of cards:
 **Basic cards** — one conjugated form per card, drills recall of a specific form:
 - All 6 present tense forms (io, tu, lui/lei, noi, voi, loro) — one card each
 - All 6 past tense forms (passato prossimo) — one card each
+  - **Gender/number agreement shown for essere-auxiliary verbs** (andare, venire, etc.)
+  - **Invariant forms for avere-auxiliary verbs** (mangiare, dormire, etc.)
 - All 6 future tense forms (futuro semplice) — one card each
 - Explicit Italian tense names (Presente Indicativo, Passato Prossimo, Futuro Semplice)
 - 18 cards per verb

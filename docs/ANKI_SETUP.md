@@ -57,12 +57,29 @@ This keeps all your Italian verb cards organized in one place.
    - **Deck**: Select **"Italian Verbs"**
    - **Allow HTML in fields**: Check ✓ (ensures `{{c1::}}` cloze syntax works)
    - Click **Import**
-4. You should see: **"Imported 18 notes."**
+4. You should see: **"Imported 3 notes."**
 
 ### What you're importing:
-- 18 cloze cards per verb
-- Format: `(mangiare) Ogni giorno io {{c1::mangio}}.`
-- Perfect for testing conjugations in context
+- 3 cloze grid cards per verb (one per tense)
+- Format: HTML grid showing all 6 persons with one form hidden
+- Perfect for testing conjugation patterns and recognition
+
+### Important: Gender/Number Agreement in Past Tense
+
+**For essere-auxiliary verbs** (andare, venire, arrivare, partire, uscire, entrare, essere, stare, rimanere, tornare):
+- You'll see gender/number variants displayed — e.g. `sono andato / andata`, `siamo andati / andate`
+- This teaches proper agreement rules essential for Italian grammar
+- The slash notation (`/`) shows both masculine and feminine forms
+- Learn both forms to understand how agreement works with different subjects
+
+**For avere-auxiliary verbs** (mangiare, dormire, etc.):
+- Past participles are invariant (same form for all genders) — e.g. `ho mangiato`
+- These forms don't change based on gender, so only one form is shown
+
+**Example — andare (to go):**
+- Front shows question for one person (e.g., "io")
+- Back reveals all 6 persons with gender variants: `sono andato / andata`, `sei andato / andata`, etc.
+- This reinforces both the conjugation pattern AND gender agreement rules
 
 ---
 
@@ -97,18 +114,20 @@ For vocabulary reinforcement, you can also import definition cloze cards:
 After all imports, you'll have **two decks**:
 
 ### Deck 1: Italian Verbs (Conjugations)
-- Basic cards: Conjugation drilling
-- Cloze grid cards: Pattern recognition
-- Total: 36 cards per verb (or more if you add custom verbs)
+- Basic cards: 18 per verb (6 present + 6 past + 6 future) — Conjugation drilling
+- Cloze grid cards: 3 per verb (one per tense) — Pattern recognition with gender/number agreement
+- Total: 21 cards per verb (or more if you add custom verbs)
 
 ### Deck 2: Italian Verbs — Definitions (Vocabulary)
-- Definition cards: Vocabulary recall
-- Total: 57 cards (all A1-A2 verbs)
+- Definition cards: 57 total (one per A1-A2 verb)
+- Format: Cloze cards testing English → Italian recall
+- Tests vocabulary knowledge
 
 **Together they create a complete learning system:**
 1. Learn what verbs mean (definitions)
 2. Learn how to conjugate them (basic + cloze grid)
-3. Master both forms and meanings through spaced repetition
+3. Understand gender/number agreement (especially for essere verbs)
+4. Master forms, meanings, and patterns through spaced repetition
 
 ---
 

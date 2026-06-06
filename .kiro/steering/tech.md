@@ -24,6 +24,8 @@ The tool produces two CSV files per run — one for Basic note type, one for Clo
 - 18 rows per verb (6 present + 6 past + 6 future)
 - Front format: `{infinitive} ({person}, {tense})` — e.g. `mangiare (io, Presente Indicativo)`
 - Back: conjugated form — e.g. `mangio`
+- **Gender/number agreement shown for essere-auxiliary verbs** — e.g. `sono andato / andata` (m.s./f.s.), `siamo andati / andate` (m.pl./f.pl.)
+- **Avere-auxiliary verbs show invariant forms** — e.g. `ho mangiato` (same for all genders)
 - Imported into Anki as note type: Basic
 - Deck: Italian Verbs
 

@@ -74,6 +74,8 @@ italian-learning-workflow/
 
 **mlconjug3 Integration**:
 - `VerbConjugator` uses mlconjug3 as primary conjugation source
+- **Gender/number agreement implemented for essere-auxiliary verbs** — All 10 verbs properly show m.s./f.s./m.pl./f.pl. forms
+- **Avere-auxiliary verbs show invariant forms** — No gender agreement needed (e.g., `ho mangiato`)
 - Grid-based cloze card generation (no LLM, no sentence templates)
 - Deterministic auxiliary verb selection (avere vs essere)
 - English translations from `verb_translations.json` (57 A1-A2 verbs)

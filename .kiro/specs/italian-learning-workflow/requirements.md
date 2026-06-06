@@ -70,17 +70,23 @@ The Italian Learning Workflow is a CLI tool for A1–A2 Italian learners that ge
 
 ---
 
-### Requirement 4: Conjugation Accuracy
+### Requirement 4: Conjugation Accuracy with Gender/Number Agreement
 
-**User Story:** As a language learner, I want all conjugations to be grammatically correct, so that I am not learning incorrect Italian.
+**User Story:** As a language learner, I want all conjugations to be grammatically correct including proper gender/number agreement, so that I learn authentic Italian.
 
 #### Acceptance Criteria
 
 1. ALL present tense forms SHALL be simple present indicative (e.g. `dormo`, not `sono addormentato`).
 2. ALL past tense forms SHALL be passato prossimo with the correct auxiliary verb (e.g. `ho dormito` for dormire, `sono andato` for andare).
 3. ALL future tense forms SHALL be futuro semplice (e.g. `dormirò`, not `sarò dormito`).
-4. THE Workflow SHALL use mlconjug3 as the authoritative source for all conjugations.
-5. THE Workflow SHALL raise a `ConjugatorError` if mlconjug3 fails to conjugate the given verb.
+4. **FOR essere-auxiliary verbs** (andare, venire, arrivare, partire, uscire, entrare, essere, stare, rimanere, tornare):
+   - Passato prossimo forms SHALL include gender/number agreement on the past participle
+   - Singular persons (io, tu, lui/lei) SHALL show m.s./f.s. variants — e.g. `sono andato / andata`, `è andato / andata`
+   - Plural persons (noi, voi, loro) SHALL show m.pl./f.pl. variants — e.g. `siamo andati / andate`, `siete andati / andate`
+5. **FOR avere-auxiliary verbs** (all others):
+   - Passato prossimo forms SHALL show invariant past participles (no gender agreement) — e.g. `ho mangiato` (same for all genders)
+6. THE Workflow SHALL use mlconjug3 as the authoritative source for all conjugations.
+7. THE Workflow SHALL raise a `ConjugatorError` if mlconjug3 fails to conjugate the given verb.
 
 ---
 

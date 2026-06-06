@@ -118,9 +118,10 @@ class WorkflowOrchestrator:
         print(f"[2/2] Building definition cards...")
         definition_rows = []
         for infinitive, translation in sorted(translations.items()):
-            # Format: front={{c1::infinitive}}, back=translation
-            front = f"{{{{c1::{infinitive}}}}}"
-            back = translation
+            # Format: front=translation, back={{c1::infinitive}}
+            # Learn Italian verb from English definition
+            front = translation
+            back = f"{{{{c1::{infinitive}}}}}"
             definition_rows.append((front, back))
 
         # Write to CSV

@@ -112,7 +112,7 @@ On any failure after the verb folder is created, calls `StorageManager.cleanup()
 
 ### `src/verb_conjugator.py` — VerbConjugator
 
-**Responsibility:** Extract all conjugation forms from mlconjug3 and generate cloze sentence templates.
+**Responsibility:** Extract all conjugation forms from mlconjug3 and generate cloze sentence templates. Implements gender/number agreement for essere-auxiliary verbs.
 
 **Initialisation:** Creates a `mlconjug3.Conjugator(language='it')` instance. Raises `ConjugatorError` immediately if mlconjug3 is not installed or fails to initialise.
 
@@ -123,9 +123,39 @@ On any failure after the verb folder is created, calls `StorageManager.cleanup()
    - Present: `conjug_info['Indicativo']['Indicativo presente']` → keys `1s`, `2s`, `3s`, `1p`, `2p`, `3p`
    - Past participle: `conjug_info['Indicativo']['Indicativo passato prossimo']['1s']`
    - Future: `conjug_info['Indicativo']['Indicativo futuro semplice']` → keys `1s`, `2s`
-3. Prepends the correct auxiliary to the past participle using `_get_auxiliary_verb()`
-4. Generates 8 cloze sentences via `_generate_cloze_sentences()` (deterministic templates)
+3. Prepends the correct auxiliary to the past participle using `_get_auxiliary_verb_all_forms()`
+   - **For essere-auxiliary verbs:** Applies gender/number agreement to past participles
+     - Singular (io, tu, lui/lei): m.s./f.s. format — e.g., `"sono andato / andata"`
+     - Plural (noi, voi, loro): m.pl./f.pl. format — e.g., `"siamo andati / andate"`
+   - **For avere-auxiliary verbs:** Past participle remains invariant — e.g., `"ho mangiato"` (same for all genders)
+4. Generates 18 cloze sentences via `_generate_cloze_sentences()` (deterministic templates)
 5. Returns a `ConjugationData` dataclass
+
+**Gender/Number Agreement Implementation** — 10 essere-auxiliary verbs:
+- Core: `andare`, `venire`, `arrivare`, `partire`, `uscire`, `entrare`, `essere`
+- Additional: `stare`, `rimanere`, `tornare`
+
+For these verbs, past participles are constructed with gender/number variants:
+```
+andare (to go):
+  io:       sono andato / andata
+  tu:       sei andato / andata
+  lui/lei:  è andato / andata
+  noi:      siamo andati / andate
+  voi:      siete andati / andate
+  loro:     sono andati / andate
+```
+
+For all other verbs (avere-auxiliary), the past participle is invariant (no gender agreement):
+```
+mangiare (to eat):
+  io:       ho mangiato
+  tu:       hai mangiato
+  lui/lei:  ha mangiato
+  noi:      abbiamo mangiato
+  voi:      avete mangiato
+  loro:     hanno mangiato
+```
 
 **Auxiliary verb selection** — module-level constant `ESSERE_VERBS`:
 ```python

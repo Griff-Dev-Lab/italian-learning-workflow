@@ -140,23 +140,78 @@ class VerbConjugator:
         try:
             # Get the past participle from passato prossimo
             past_participle_forms = conjugation_dict.get('Indicativo', {}).get('Indicativo passato prossimo', {})
-            past_participle = past_participle_forms.get('1s', '')  # All persons have same participle
             
-            if past_participle:
-                # Get auxiliary verb forms for all 6 persons
+            # mlconjug3 may return past participle with '1s' key or empty '' key
+            past_participle = past_participle_forms.get('1s', '') or past_participle_forms.get('', '')
+            
+            # Special handling for essere and other essere-auxiliary verbs
+            # These need gender/number agreement on the past participle
+            if infinitive == 'essere':
+                # Past participle forms for essere with gender/number agreement
+                # Format: "stato / stata" (m.s./f.s.), "stati / state" (m.pl./f.pl.)
+                auxiliary = self._get_auxiliary_verb_all_forms(infinitive)
+                return {
+                    "io": f"{auxiliary['io']} stato / stata",
+                    "tu": f"{auxiliary['tu']} stato / stata",
+                    "lui_lei": f"{auxiliary['lui_lei']} stato / stata",
+                    "noi": f"{auxiliary['noi']} stati / state",
+                    "voi": f"{auxiliary['voi']} stati / state",
+                    "loro": f"{auxiliary['loro']} stati / state",
+                }
+            elif infinitive in ('andare', 'venire', 'arrivare', 'partire', 'uscire', 'entrare'):
+                # Other essere-auxiliary verbs also need agreement
                 auxiliary = self._get_auxiliary_verb_all_forms(infinitive)
                 
-                # Combine auxiliary + past participle for all 6 forms
+                # Determine the masculine singular past participle
+                if infinitive == 'andare':
+                    masc_s = 'andato'
+                    masc_p = 'andati'
+                elif infinitive == 'venire':
+                    masc_s = 'venuto'
+                    masc_p = 'venuti'
+                elif infinitive == 'arrivare':
+                    masc_s = 'arrivato'
+                    masc_p = 'arrivati'
+                elif infinitive == 'partire':
+                    masc_s = 'partito'
+                    masc_p = 'partiti'
+                elif infinitive == 'uscire':
+                    masc_s = 'uscito'
+                    masc_p = 'usciti'
+                elif infinitive == 'entrare':
+                    masc_s = 'entrato'
+                    masc_p = 'entrati'
+                else:
+                    masc_s = 'stato'
+                    masc_p = 'stati'
+                
+                # Create feminine forms
+                fem_s = masc_s.replace('o', 'a')
+                fem_p = masc_p.replace('i', 'e')
+                
                 return {
-                    "io": f"{auxiliary['io']} {past_participle}",
-                    "tu": f"{auxiliary['tu']} {past_participle}",
-                    "lui_lei": f"{auxiliary['lui_lei']} {past_participle}",
-                    "noi": f"{auxiliary['noi']} {past_participle}",
-                    "voi": f"{auxiliary['voi']} {past_participle}",
-                    "loro": f"{auxiliary['loro']} {past_participle}",
+                    "io": f"{auxiliary['io']} {masc_s} / {fem_s}",
+                    "tu": f"{auxiliary['tu']} {masc_s} / {fem_s}",
+                    "lui_lei": f"{auxiliary['lui_lei']} {masc_s} / {fem_s}",
+                    "noi": f"{auxiliary['noi']} {masc_p} / {fem_p}",
+                    "voi": f"{auxiliary['voi']} {masc_p} / {fem_p}",
+                    "loro": f"{auxiliary['loro']} {masc_p} / {fem_p}",
                 }
             else:
-                return self._fallback_past_forms(infinitive)
+                # Regular avere-auxiliary verbs (no gender agreement needed)
+                if past_participle:
+                    auxiliary = self._get_auxiliary_verb_all_forms(infinitive)
+                    
+                    return {
+                        "io": f"{auxiliary['io']} {past_participle}",
+                        "tu": f"{auxiliary['tu']} {past_participle}",
+                        "lui_lei": f"{auxiliary['lui_lei']} {past_participle}",
+                        "noi": f"{auxiliary['noi']} {past_participle}",
+                        "voi": f"{auxiliary['voi']} {past_participle}",
+                        "loro": f"{auxiliary['loro']} {past_participle}",
+                    }
+                else:
+                    return self._fallback_past_forms(infinitive)
         except Exception:
             return self._fallback_past_forms(infinitive)
 
