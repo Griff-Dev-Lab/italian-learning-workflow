@@ -6,15 +6,16 @@ Welcome to the Italian Learning Workflow documentation. Here you'll find guides,
 
 ## 📚 Available Guides
 
-### [VERB_LIST.md](VERB_LIST.md) — Top 30 Essential Verbs
-Your curated learning roadmap organized by priority tier:
+### [VERB_LIST.md](VERB_LIST.md) — Complete A1-A2 Verb Coverage
+Your curated learning roadmap for all 57 A1-A2 Italian verbs organized by priority tier:
 - **Tier 1** — Core 10 verbs (master these first)
 - **Tier 2** — High-frequency everyday actions
 - **Tier 3** — Life, work, and movement verbs
+- **Additional priorities** — Extended A1-A2 coverage
 
-Includes ready-to-copy CLI commands and a 6-week learning strategy.
+Includes ready-to-copy CLI commands and a structured learning strategy.
 
-**Start here if:** You want a structured approach to building your Italian foundation.
+**Start here if:** You want a structured approach to building your complete A1-A2 Italian foundation.
 
 ---
 
@@ -31,13 +32,14 @@ Complete step-by-step instructions for importing flashcards into Anki:
 ---
 
 ### [ROADMAP.md](ROADMAP.md) — Future Enhancements
-Planned features and improvements for upcoming releases:
-- **v1.3.0** — Extended CEFR levels (B1, B2, C1, C2)
-- **v1.4.0** — LLM-powered reading passages
-- **v1.5.0** — Batch processing & automation
-- **v2.0.0** — Web & mobile platforms
+Planned features and improvements using flexible Now/Next/Later planning:
+- **Now** — Current v1.3.2 features
+- **Next** — High-priority features (B1/B2 levels, batch processing)
+- **Later** — Future exploration (LLM passages, web/mobile, analytics)
 
-**Start here if:** You want to know what's coming next.
+No version-specific dates — responsive to community feedback and priorities.
+
+**Start here if:** You want to know what's coming next and contribute ideas.
 
 ---
 
